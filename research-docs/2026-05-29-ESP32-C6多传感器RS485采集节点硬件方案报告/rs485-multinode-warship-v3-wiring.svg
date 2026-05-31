@@ -1,0 +1,176 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980">
+  <defs>
+    <style>
+      .title{font:700 30px Arial,"Microsoft YaHei",sans-serif;fill:#17202a}
+      .h{font:700 20px Arial,"Microsoft YaHei",sans-serif;fill:#17202a}
+      .t{font:16px Arial,"Microsoft YaHei",sans-serif;fill:#17202a}
+      .pin{font:15px Consolas,"Microsoft YaHei",monospace;fill:#17202a}
+      .small{font:14px Arial,"Microsoft YaHei",sans-serif;fill:#455a64}
+      .box{fill:#ffffff;stroke:#263238;stroke-width:2;rx:8}
+      .mcu{fill:#fffdf7;stroke:#6d4c41;stroke-width:2;rx:8}
+      .rs485{fill:#f8fbff;stroke:#1f4e79;stroke-width:2;rx:8}
+      .term{fill:#ffffff;stroke:#263238;stroke-width:1.5;rx:4}
+      .labelbg{fill:#ffffff;stroke:none}
+      .local{stroke:#00838f;stroke-width:3;fill:none}
+      .ctrl{stroke:#6d4c41;stroke-width:3;fill:none}
+      .aLine{stroke:#c2185b;stroke-width:6;fill:none}
+      .bLine{stroke:#5e35b1;stroke-width:6;fill:none}
+      .gLine{stroke:#263238;stroke-width:5;fill:none}
+      .aDrop{stroke:#c2185b;stroke-width:3.5;fill:none}
+      .bDrop{stroke:#5e35b1;stroke-width:3.5;fill:none}
+      .gDrop{stroke:#263238;stroke-width:3.2;fill:none}
+      .aText{fill:#ad1457}
+      .bText{fill:#4527a0}
+      .gText{fill:#263238}
+      .res{fill:#fff3e0;stroke:#ef6c00;stroke-width:2;rx:4}
+      .bias{fill:#f1f8e9;stroke:#558b2f;stroke-width:2;rx:4}
+      .warn{fill:#fff8e1;stroke:#f9a825;stroke-width:2;rx:8}
+    </style>
+  </defs>
+
+  <text x="42" y="48" class="title">多 ESP32-C6 采集节点通过 RS485 接入战舰 V3：端子级接线</text>
+  <text x="42" y="82" class="small">跨节点总线只走 A、B、GND 三根线；各节点 RS485 模块的 VCC、DI、RO、DE-/RE 只接本节点 ESP32-C6。</text>
+
+  <rect x="45" y="120" width="280" height="220" class="mcu"/>
+  <text x="72" y="158" class="h">战舰 V3 / STM32 主站</text>
+  <text x="72" y="196" class="pin">3.3V -&gt; 外置 RS485 VCC</text>
+  <text x="72" y="228" class="pin">GND       -&gt; 总线 GND</text>
+  <text x="72" y="260" class="pin">PB10/USART3_TX -&gt; DI</text>
+  <text x="72" y="292" class="pin">PB11/USART3_RX &lt;- RO</text>
+  <text x="72" y="324" class="pin">PF12/GPIO -&gt; DE,/RE</text>
+
+  <rect x="365" y="105" width="230" height="300" class="rs485"/>
+  <text x="393" y="144" class="h">战舰侧外置 RS485 模块</text>
+  <rect x="394" y="170" width="92" height="34" class="term"/>
+  <text x="407" y="193" class="pin">VCC</text>
+  <rect x="394" y="214" width="92" height="34" class="term"/>
+  <text x="417" y="237" class="pin">GND</text>
+  <rect x="394" y="258" width="92" height="34" class="term"/>
+  <text x="424" y="281" class="pin">DI</text>
+  <rect x="394" y="302" width="92" height="34" class="term"/>
+  <text x="424" y="325" class="pin">RO</text>
+  <rect x="394" y="346" width="92" height="34" class="term"/>
+  <text x="409" y="369" class="pin">DE /RE</text>
+  <rect x="510" y="173" width="60" height="34" class="term"/>
+  <text x="532" y="196" class="pin aText">A</text>
+  <rect x="510" y="233" width="60" height="34" class="term"/>
+  <text x="532" y="256" class="pin bText">B</text>
+  <rect x="502" y="293" width="76" height="34" class="term"/>
+  <text x="516" y="316" class="pin gText">GND</text>
+  <text x="394" y="394" class="small">战舰侧启用一处偏置</text>
+
+  <path d="M325 196 H394" class="local"/>
+  <path d="M325 228 H360 V231 H394" class="local"/>
+  <path d="M325 260 H360 V275 H394" class="local"/>
+  <path d="M394 319 H360 V292 H325" class="local"/>
+  <path d="M325 324 H350 V363 H394" class="ctrl"/>
+
+  <path d="M570 190 H1480" class="aLine"/>
+  <path d="M570 250 H1480" class="bLine"/>
+  <path d="M578 310 H1480" class="gLine"/>
+
+  <rect x="620" y="152" width="66" height="24" class="labelbg"/>
+  <text x="626" y="171" class="pin aText">A 主干</text>
+  <rect x="620" y="212" width="66" height="24" class="labelbg"/>
+  <text x="626" y="231" class="pin bText">B 主干</text>
+  <rect x="620" y="272" width="98" height="24" class="labelbg"/>
+  <text x="626" y="291" class="pin gText">GND 参考地</text>
+
+  <rect x="700" y="112" width="142" height="42" class="bias"/>
+  <text x="720" y="139" class="t">fail-safe 偏置</text>
+  <text x="852" y="139" class="small">只启用一处，通常放主站侧</text>
+
+  <rect x="612" y="204" width="70" height="38" class="res"/>
+  <text x="628" y="229" class="t">120Ω</text>
+  <path d="M647 190 V204" class="aDrop"/>
+  <path d="M647 242 V250" class="bDrop"/>
+  <text x="690" y="229" class="small">物理起点 A-B</text>
+
+  <text x="780" y="355" class="small">主干敷设方向：战舰侧外置 RS485 模块 -> 节点 01 -> 节点 02 -> ... -> 节点 N</text>
+
+  <g id="node01">
+    <rect x="675" y="410" width="250" height="265" class="rs485"/>
+    <rect x="700" y="430" width="60" height="34" class="term"/>
+    <text x="722" y="453" class="pin aText">A</text>
+    <rect x="775" y="430" width="60" height="34" class="term"/>
+    <text x="797" y="453" class="pin bText">B</text>
+    <rect x="850" y="430" width="70" height="34" class="term"/>
+    <text x="861" y="453" class="pin gText">GND</text>
+    <text x="720" y="520" class="h">节点 01 RS485 模块</text>
+    <text x="705" y="555" class="pin">VCC -&gt; 本节点 3V3</text>
+    <text x="705" y="585" class="pin">DI  &lt;- GPIO20 / TX</text>
+    <text x="705" y="615" class="pin">RO  -&gt; GPIO21 / RX</text>
+    <text x="705" y="645" class="pin">DE 与 /RE &lt;- GPIO18</text>
+  </g>
+
+  <g id="node02">
+    <rect x="965" y="410" width="250" height="265" class="rs485"/>
+    <rect x="990" y="430" width="60" height="34" class="term"/>
+    <text x="1012" y="453" class="pin aText">A</text>
+    <rect x="1065" y="430" width="60" height="34" class="term"/>
+    <text x="1087" y="453" class="pin bText">B</text>
+    <rect x="1140" y="430" width="70" height="34" class="term"/>
+    <text x="1151" y="453" class="pin gText">GND</text>
+    <text x="1010" y="520" class="h">节点 02 RS485 模块</text>
+    <text x="995" y="560" class="pin">VCC/DI/RO/DE-/RE</text>
+    <text x="995" y="590" class="pin">只接本节点 ESP32-C6</text>
+    <text x="995" y="630" class="small">节点 ID 与节点 01 不同</text>
+  </g>
+
+  <g id="nodeN">
+    <rect x="1255" y="410" width="250" height="265" class="rs485"/>
+    <rect x="1280" y="430" width="60" height="34" class="term"/>
+    <text x="1302" y="453" class="pin aText">A</text>
+    <rect x="1355" y="430" width="60" height="34" class="term"/>
+    <text x="1377" y="453" class="pin bText">B</text>
+    <rect x="1430" y="430" width="70" height="34" class="term"/>
+    <text x="1441" y="453" class="pin gText">GND</text>
+    <text x="1312" y="520" class="h">节点 N RS485 模块</text>
+    <text x="1285" y="560" class="pin">VCC/DI/RO/DE-/RE</text>
+    <text x="1285" y="590" class="pin">只接本节点 ESP32-C6</text>
+    <text x="1285" y="630" class="small">末端节点只在被轮询时发送</text>
+  </g>
+
+  <path d="M730 190 V430" class="aDrop"/>
+  <path d="M805 250 V430" class="bDrop"/>
+  <path d="M885 310 V430" class="gDrop"/>
+  <path d="M1020 190 V430" class="aDrop"/>
+  <path d="M1095 250 V430" class="bDrop"/>
+  <path d="M1175 310 V430" class="gDrop"/>
+  <path d="M1310 190 V430" class="aDrop"/>
+  <path d="M1385 250 V430" class="bDrop"/>
+  <path d="M1465 310 V430" class="gDrop"/>
+
+  <text x="1228" y="178" class="pin aText">... A</text>
+  <text x="1228" y="238" class="pin bText">... B</text>
+  <text x="1210" y="298" class="pin gText">... GND</text>
+
+  <rect x="1490" y="204" width="70" height="38" class="res"/>
+  <text x="1506" y="229" class="t">120Ω</text>
+  <path d="M1525 190 V204" class="aDrop"/>
+  <path d="M1525 242 V250" class="bDrop"/>
+  <text x="1452" y="270" class="small">物理末端 A-B</text>
+
+  <rect x="45" y="705" width="470" height="225" class="box"/>
+  <text x="76" y="742" class="h">逐段接线</text>
+  <text x="76" y="780" class="pin aText">A：战舰 RS485 A -&gt; 节点01 A -&gt; 节点02 A -&gt; ... -&gt; 节点N A</text>
+  <text x="76" y="818" class="pin bText">B：战舰 RS485 B -&gt; 节点01 B -&gt; 节点02 B -&gt; ... -&gt; 节点N B</text>
+  <text x="76" y="856" class="pin gText">GND：战舰 GND -&gt; 节点01 GND -&gt; 节点02 GND -&gt; ...</text>
+  <text x="76" y="886" class="pin gText">     -&gt; 节点N GND</text>
+  <text x="76" y="915" class="small">每段线沿主干前进，节点附近短接入；不要从主站拉多条长支路。</text>
+
+  <rect x="565" y="705" width="450" height="225" class="box"/>
+  <text x="596" y="742" class="h">每个节点本地接线相同</text>
+  <text x="596" y="780" class="pin">RS485 VCC  -&gt; 本节点 ESP32-C6 3V3</text>
+  <text x="596" y="812" class="pin">RS485 GND  -&gt; 本节点 GND，并接总线 GND</text>
+  <text x="596" y="844" class="pin">RS485 DI   &lt;- GPIO20 / UART TX</text>
+  <text x="596" y="876" class="pin">RS485 RO   -&gt; GPIO21 / UART RX</text>
+  <text x="596" y="908" class="pin">RS485 DE 与 /RE &lt;- GPIO18</text>
+
+  <rect x="1065" y="705" width="490" height="225" class="warn"/>
+  <text x="1096" y="742" class="h">禁止 / 注意</text>
+  <text x="1096" y="780" class="t">1. 不要把战舰 VCC/3.3V 拉到节点 01、节点 02、节点 N。</text>
+  <text x="1096" y="814" class="t">2. 不要把主站分出多条长支路分别接各节点，避免星形总线。</text>
+  <text x="1096" y="848" class="t">3. 120Ω 终端只放在物理两端，中间节点不要重复启用。</text>
+  <text x="1096" y="882" class="t">4. A/B 命名若与模块相反，排障时只对调一侧 A/B。</text>
+</svg>

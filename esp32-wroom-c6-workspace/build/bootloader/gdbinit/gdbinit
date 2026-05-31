@@ -1,0 +1,2 @@
+source /home/x/qrs-hw/esp32-wroom-c6-workspace/build/bootloader/gdbinit/symbols
+source /home/x/qrs-hw/esp32-wroom-c6-workspace/build/bootloader/gdbinit/connect

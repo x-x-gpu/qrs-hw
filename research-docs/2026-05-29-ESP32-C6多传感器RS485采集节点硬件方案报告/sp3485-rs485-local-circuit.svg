@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="640" viewBox="0 0 1100 640">
+  <defs>
+    <style>
+      .title{font:700 26px Arial,"Microsoft YaHei",sans-serif;fill:#17202a}
+      .h{font:700 19px Arial,"Microsoft YaHei",sans-serif;fill:#17202a}
+      .t{font:15px Arial,"Microsoft YaHei",sans-serif;fill:#17202a}
+      .pin{font:15px Consolas,"Microsoft YaHei",monospace;fill:#17202a}
+      .note{font:14px Arial,"Microsoft YaHei",sans-serif;fill:#546e7a}
+      .box{fill:#ffffff;stroke:#263238;stroke-width:2;rx:8}
+      .chip{fill:#f3f7fb;stroke:#1f4e79;stroke-width:2;rx:6}
+      .wire{stroke:#263238;stroke-width:3;fill:none}
+      .pwr{stroke:#d32f2f;stroke-width:4;fill:none}
+      .gnd{stroke:#263238;stroke-width:4;fill:none}
+      .uart{stroke:#0097a7;stroke-width:3;fill:none}
+      .ctrl{stroke:#6d4c41;stroke-width:3;fill:none}
+      .busA{stroke:#c2185b;stroke-width:4;fill:none}
+      .busB{stroke:#5e35b1;stroke-width:4;fill:none}
+      .res{fill:#fff3e0;stroke:#ef6c00;stroke-width:2}
+      .dot{fill:#17202a}
+    </style>
+  </defs>
+
+  <text x="40" y="48" class="title">SP3485 / MAX3485 类 3.3V RS485 局部电路</text>
+  <text x="40" y="78" class="note">用于每个 ESP32-C6 采集节点；若模块已经集成跳帽/偏置/终端，按模块说明只启用需要的一处。</text>
+
+  <rect x="60" y="135" width="250" height="315" class="box"/>
+  <text x="90" y="175" class="h">ESP32-C6</text>
+  <text x="92" y="220" class="pin">GPIO20 / TX</text>
+  <text x="92" y="265" class="pin">GPIO21 / RX</text>
+  <text x="92" y="310" class="pin">GPIO18</text>
+  <text x="92" y="355" class="pin">3V3</text>
+  <text x="92" y="400" class="pin">GND</text>
+
+  <rect x="430" y="120" width="245" height="380" class="chip"/>
+  <text x="480" y="158" class="h">SP3485 收发器</text>
+  <circle cx="430" cy="220" r="4" class="dot"/><text x="455" y="225" class="pin">DI</text>
+  <circle cx="430" cy="265" r="4" class="dot"/><text x="455" y="270" class="pin">RO</text>
+  <circle cx="430" cy="310" r="4" class="dot"/><text x="455" y="315" class="pin">DE</text>
+  <circle cx="430" cy="350" r="4" class="dot"/><text x="455" y="355" class="pin">/RE</text>
+  <circle cx="430" cy="400" r="4" class="dot"/><text x="455" y="405" class="pin">VCC</text>
+  <circle cx="430" cy="445" r="4" class="dot"/><text x="455" y="450" class="pin">GND</text>
+  <circle cx="675" cy="265" r="4" class="dot"/><text x="625" y="270" class="pin">A</text>
+  <circle cx="675" cy="340" r="4" class="dot"/><text x="625" y="345" class="pin">B</text>
+
+  <path d="M310 220 H430" class="uart"/>
+  <path d="M430 265 H310" class="uart"/>
+  <path d="M310 310 H375 V330 H430" class="ctrl"/>
+  <path d="M375 330 V350 H430" class="ctrl"/>
+  <path d="M310 355 H390 V400 H430" class="pwr"/>
+  <path d="M310 400 H390 V445 H430" class="gnd"/>
+
+  <path d="M675 265 H930" class="busA"/>
+  <path d="M675 340 H930" class="busB"/>
+  <text x="820" y="248" class="pin">RS485 A</text>
+  <text x="820" y="367" class="pin">RS485 B</text>
+
+  <rect x="920" y="285" width="70" height="36" class="res"/>
+  <text x="931" y="309" class="t">120Ω</text>
+  <path d="M955 265 V285" class="busA"/>
+  <path d="M955 321 V340" class="busB"/>
+
+  <rect x="760" y="135" width="78" height="34" class="res"/>
+  <text x="772" y="158" class="t">偏置</text>
+  <path d="M780 135 V105 H700" class="pwr"/>
+  <path d="M780 169 V265 H675" class="busA"/>
+  <rect x="760" y="430" width="78" height="34" class="res"/>
+  <text x="772" y="453" class="t">偏置</text>
+  <path d="M780 340 H675" class="busB"/>
+  <path d="M780 340 V430" class="busB"/>
+  <path d="M780 464 V505 H700" class="gnd"/>
+
+  <text x="705" y="548" class="note">终端 120Ω 只放在总线物理两端；偏置网络建议只在主站侧启用一处。</text>
+  <text x="705" y="575" class="note">如果使用 Waveshare RS485 Board (3.3V)，可通过板上跳帽选择终端和偏置。</text>
+
+  <text x="95" y="512" class="note">GPIO18 同时接 DE 与 /RE：</text>
+  <text x="95" y="540" class="note">发送前置 1，发送完成后置 0。</text>
+</svg>

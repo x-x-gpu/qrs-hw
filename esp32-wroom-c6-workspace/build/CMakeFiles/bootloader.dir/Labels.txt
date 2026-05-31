@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+/home/x/qrs-hw/esp32-wroom-c6-workspace/build/CMakeFiles/bootloader
+/home/x/qrs-hw/esp32-wroom-c6-workspace/build/CMakeFiles/bootloader.rule
+/home/x/qrs-hw/esp32-wroom-c6-workspace/build/CMakeFiles/bootloader-complete.rule
+/home/x/qrs-hw/esp32-wroom-c6-workspace/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+/home/x/qrs-hw/esp32-wroom-c6-workspace/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+/home/x/qrs-hw/esp32-wroom-c6-workspace/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+/home/x/qrs-hw/esp32-wroom-c6-workspace/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+/home/x/qrs-hw/esp32-wroom-c6-workspace/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+/home/x/qrs-hw/esp32-wroom-c6-workspace/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+/home/x/qrs-hw/esp32-wroom-c6-workspace/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule

@@ -1,0 +1,7 @@
+Command: /home/x/.espressif/tools/python/v5.5.1/venv/bin/python /home/x/.espressif/v5.5.1/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix riscv32-esp-elf- --target esp32c6 --revision 0 --decode-panic backtrace /home/x/qrs-hw/esp32-wroom-c6-workspace/build/esp32c6_wroom1_pipeline.elf /home/x/qrs-hw/esp32-wroom-c6-workspace/build/bootloader/bootloader.elf -m '/home/x/.espressif/tools/python/v5.5.1/venv/bin/python' '/home/x/.espressif/v5.5.1/esp-idf/tools/idf.py' '-p' '/dev/ttyACM0'
+[0;33m--- esp-idf-monitor 1.9.0 on /dev/ttyACM0 115200[0m
+[0;33m--- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H[0m
+[0m--- 0x4086b910: [0;33mesp_bootloader_get_description[0m[0m at [0;32m/home/x/.espressif/v5.5.1/esp-idf/components/esp_bootloader_format/esp_bootloader_desc.c[0m[0m:[1;31m39[0m
+[0m--- 0x4086e610: [0;33mesp_flash_encryption_enabled[0m[0m at [0;32m/home/x/.espressif/v5.5.1/esp-idf/components/bootloader_support/src/flash_encrypt.c[0m[0m:[1;31m89[0m
+[0m--- 0x4086b91a: [0;33mcall_start_cpu0[0m[0m at [0;32m/home/x/.espressif/v5.5.1/esp-idf/components/bootloader/subproject/main/bootloader_start.c[0m[0m:[1;31m25[0m
+[0m

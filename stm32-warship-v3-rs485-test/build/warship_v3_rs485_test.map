@@ -1,0 +1,262 @@
+
+Discarded input sections
+
+ .text          0x00000000        0x0 build/startup.o
+ .data          0x00000000        0x0 build/startup.o
+ .bss           0x00000000        0x0 build/startup.o
+ .text          0x00000000        0x0 build/main.o
+ .data          0x00000000        0x0 build/main.o
+ .bss           0x00000000        0x0 build/main.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+FLASH            0x08000000         0x00080000         xr
+RAM              0x20000000         0x00010000         xrw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD build/startup.o
+LOAD build/main.o
+                0x20010000                        _estack = (ORIGIN (RAM) + LENGTH (RAM))
+
+.isr_vector     0x08000000       0xe0
+ *(.isr_vector)
+ .isr_vector    0x08000000       0xe0 build/startup.o
+                0x08000000                g_vectors
+
+.text           0x080000e0     0x1cb8
+ *(.text*)
+ .text.Default_Handler
+                0x080000e0        0x2 build/startup.o
+                0x080000e0                DebugMon_Handler
+                0x080000e0                HardFault_Handler
+                0x080000e0                PendSV_Handler
+                0x080000e0                NMI_Handler
+                0x080000e0                UsageFault_Handler
+                0x080000e0                Default_Handler
+                0x080000e0                MemManage_Handler
+                0x080000e0                SVC_Handler
+                0x080000e0                BusFault_Handler
+ *fill*         0x080000e2        0x2 
+ .text.Reset_Handler
+                0x080000e4       0x40 build/startup.o
+                0x080000e4                Reset_Handler
+ .text.delay_cycles
+                0x08000124       0x14 build/main.o
+ .text.gpio_config_pin
+                0x08000138       0x2e build/main.o
+ *fill*         0x08000166        0x2 
+ .text.lcd_gpio_write_bus
+                0x08000168       0x68 build/main.o
+ .text.rs485_send
+                0x080001d0       0x70 build/main.o
+ .text.rxdiag_set_preview
+                0x08000240       0x2e build/main.o
+ *fill*         0x0800026e        0x2 
+ .text.contains_data_frame_for_node
+                0x08000270       0x80 build/main.o
+ .text.find_field
+                0x080002f0       0x26 build/main.o
+ .text.parse_field_fixed1
+                0x08000316       0x6e build/main.o
+ .text.append_text
+                0x08000384       0x14 build/main.o
+ .text.format_node_title
+                0x08000398       0x54 build/main.o
+ .text.to_hex   0x080003ec        0xe build/main.o
+ .text.append_hex4
+                0x080003fa       0x30 build/main.o
+ *fill*         0x0800042a        0x2 
+ .text.lcd_data_pins_output
+                0x0800042c       0x4c build/main.o
+ .text.lcd_write_cmd
+                0x08000478       0x38 build/main.o
+ .text.lcd_read_data
+                0x080004b0       0xd4 build/main.o
+ .text.append_uint
+                0x08000584       0x52 build/main.o
+ .text.format_fixed1
+                0x080005d6       0x32 build/main.o
+ .text.finalize_node_window
+                0x08000608       0x56 build/main.o
+ *fill*         0x0800065e        0x2 
+ .text.format_rx_diag
+                0x08000660       0x6c build/main.o
+ .text.append_node_summary
+                0x080006cc       0x9c build/main.o
+ .text.format_node_env
+                0x08000768       0x4c build/main.o
+ .text.format_node_diag
+                0x080007b4       0x38 build/main.o
+ .text.copy_field_value.constprop.0
+                0x080007ec       0x50 build/main.o
+ .text.copy_response_line.constprop.0
+                0x0800083c       0x20 build/main.o
+ .text.query_node
+                0x0800085c      0x588 build/main.o
+ .text.lcd_write_data
+                0x08000de4       0x38 build/main.o
+ .text.lcd_write_cmd_data
+                0x08000e1c       0x12 build/main.o
+ .text.lcd_write_reg_series
+                0x08000e2e       0x1e build/main.o
+ .text.lcd_fill_rect.part.0
+                0x08000e4c      0x138 build/main.o
+ .text.lcd_draw_line
+                0x08000f84      0x2de build/main.o
+ *fill*         0x08001262        0x2 
+ .text.lcd_render_status
+                0x08001264      0x1a4 build/main.o
+ .text.update_display_if_due
+                0x08001408       0x78 build/main.o
+ .text.SysTick_Handler
+                0x08001480       0x10 build/main.o
+                0x08001480                SysTick_Handler
+ .text.USART3_IRQHandler
+                0x08001490       0x70 build/main.o
+                0x08001490                USART3_IRQHandler
+ .text.startup.main
+                0x08001500      0x700 build/main.o
+                0x08001500                main
+ *(.rodata*)
+ .rodata.format_node_title.str1.1
+                0x08001c00      0x11c build/main.o
+                                 0x16 (size before relaxing)
+ .rodata.format_rx_diag.str1.1
+                0x08001d1c       0x16 build/main.o
+ .rodata.append_node_summary.str1.1
+                0x08001d1c       0x20 build/main.o
+ .rodata.format_node_env.str1.1
+                0x08001d1c       0x17 build/main.o
+ .rodata.format_node_diag.str1.1
+                0x08001d1c       0x13 build/main.o
+ .rodata.query_node.str1.1
+                0x08001d1c       0x74 build/main.o
+ .rodata.lcd_render_status.str1.1
+                0x08001d1c       0x3a build/main.o
+ .rodata.update_display_if_due.str1.1
+                0x08001d1c        0xa build/main.o
+ .rodata.ini30.0
+                0x08001d1c        0x4 build/main.o
+ .rodata.ini28.1
+                0x08001d20        0x6 build/main.o
+ .rodata.ini27.2
+                0x08001d26        0x3 build/main.o
+ .rodata.ini26.3
+                0x08001d29        0x3 build/main.o
+ .rodata.ini25.4
+                0x08001d2c        0x4 build/main.o
+ .rodata.ini24.5
+                0x08001d30        0x2 build/main.o
+ .rodata.ini22.6
+                0x08001d32        0x5 build/main.o
+ .rodata.ini21.7
+                0x08001d37        0x5 build/main.o
+ .rodata.gamma.8
+                0x08001d3c       0x34 build/main.o
+ .rodata.ini17.9
+                0x08001d70        0x2 build/main.o
+ .rodata.ini15.10
+                0x08001d72        0x3 build/main.o
+ .rodata.ini12.11
+                0x08001d75        0x2 build/main.o
+ .rodata.ini09.12
+                0x08001d77        0x3 build/main.o
+ .rodata.ini07.13
+                0x08001d7a        0x3 build/main.o
+ .rodata.ini02.14
+                0x08001d7d        0x3 build/main.o
+ .rodata.ini03.15
+                0x08001d80        0x3 build/main.o
+ .rodata.ini01.16
+                0x08001d83        0x5 build/main.o
+ .rodata.port_e_pins.19
+                0x08001d88        0x9 build/main.o
+ .rodata.port_d_pins.20
+                0x08001d91        0x7 build/main.o
+                0x08001d98                        . = ALIGN (0x4)
+                0x08001d98                        _etext = .
+
+.glue_7         0x08001d98        0x0
+ .glue_7        0x08001d98        0x0 linker stubs
+
+.glue_7t        0x08001d98        0x0
+ .glue_7t       0x08001d98        0x0 linker stubs
+
+.vfp11_veneer   0x08001d98        0x0
+ .vfp11_veneer  0x08001d98        0x0 linker stubs
+
+.v4_bx          0x08001d98        0x0
+ .v4_bx         0x08001d98        0x0 linker stubs
+
+.iplt           0x08001d98        0x0
+ .iplt          0x08001d98        0x0 build/startup.o
+
+.rel.dyn        0x08001d98        0x0
+ .rel.iplt      0x08001d98        0x0 build/startup.o
+
+.data           0x20000000        0x0 load address 0x08001d98
+                0x20000000                        _sdata = .
+ *(.data*)
+                0x20000000                        . = ALIGN (0x4)
+                0x20000000                        _edata = .
+                0x08001d98                        _sidata = LOADADDR (.data)
+
+.igot.plt       0x20000000        0x0
+ .igot.plt      0x20000000        0x0 build/startup.o
+
+.bss            0x20000000      0x298
+                0x20000000                        _sbss = .
+ *(.bss*)
+ .bss.uart3_rx_errors
+                0x20000000        0x4 build/main.o
+ .bss.uart3_rx_overflows
+                0x20000004        0x4 build/main.o
+ .bss.uart3_rx_total
+                0x20000008        0x4 build/main.o
+ .bss.uart3_rx_tail
+                0x2000000c        0x2 build/main.o
+ .bss.uart3_rx_head
+                0x2000000e        0x2 build/main.o
+ .bss.uart3_rx_ring
+                0x20000010      0x100 build/main.o
+ .bss.system_ms
+                0x20000110        0x4 build/main.o
+ .bss.lcd_data_bus_output
+                0x20000114        0x1 build/main.o
+ .bss.lcd_is_nt35510
+                0x20000115        0x1 build/main.o
+ .bss.lcd_raw_dc
+                0x20000116        0x2 build/main.o
+ .bss.lcd_raw_db
+                0x20000118        0x2 build/main.o
+ .bss.lcd_raw_da
+                0x2000011a        0x2 build/main.o
+ .bss.lcd_raw_d3
+                0x2000011c        0xa build/main.o
+ .bss.lcd_raw_04
+                0x20000126        0x8 build/main.o
+ *fill*         0x2000012e        0x2 
+ .bss.rxdiag02  0x20000130       0x4c build/main.o
+ .bss.rxdiag01  0x2000017c       0x4c build/main.o
+ .bss.node02    0x200001c8       0x68 build/main.o
+ .bss.node01    0x20000230       0x68 build/main.o
+ *(COMMON)
+                0x20000298                        . = ALIGN (0x4)
+                0x20000298                        _ebss = .
+OUTPUT(build/warship_v3_rs485_test.elf elf32-littlearm)
+LOAD linker stubs
+
+.comment        0x00000000       0x26
+ .comment       0x00000000       0x26 build/startup.o
+                                 0x27 (size before relaxing)
+ .comment       0x00000026       0x27 build/main.o
+
+.ARM.attributes
+                0x00000000       0x2d
+ .ARM.attributes
+                0x00000000       0x2d build/startup.o
+ .ARM.attributes
+                0x0000002d       0x2d build/main.o

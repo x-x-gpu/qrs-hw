@@ -1,0 +1,366 @@
+Command: /home/x/.espressif/tools/python/v5.5.1/venv/bin/python /home/x/.espressif/v5.5.1/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix riscv32-esp-elf- --target esp32c6 --revision 0 --decode-panic backtrace /home/x/qrs-hw/esp32-wroom-c6-workspace/build/esp32c6_wroom1_pipeline.elf /home/x/qrs-hw/esp32-wroom-c6-workspace/build/bootloader/bootloader.elf -m '/home/x/.espressif/tools/python/v5.5.1/venv/bin/python' '/home/x/.espressif/v5.5.1/esp-idf/tools/idf.py' '-p' '/dev/ttyACM0'
+RX 13 byte(s): @Q,ID=01*00
+
+[0;32mI (18883) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=60.8,T=28.0,H=64.0,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (19093) sensor_check: RS485 RX 46 byte(s): ��b�%I��8,T=28.0,H=OK,DHT=ESP_OK<0D><0A>[0m
+
+ESP-ROM:esp32c6-20220919
+Build:Sep 19 2022
+rst:0x1 (POWERON),boot:0x1c (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:2
+load:0x40875730,len:0x1744
+load:0x4086b910,len:0xe78
+load:0x4086e610,len:0x31c8
+entry 0x4086b91a
+[0;32mI (23) boot: ESP-IDF v5.5.1 2nd stage bootloader[0m
+[0;32mI (24) boot: compile time May 30 2026 23:19:48[0m
+[0;32mI (24) boot: chip revision: v0.2[0m
+[0;32mI (24) boot: efuse block revision: v0.3[0m
+[0;32mI (27) boot.esp32c6: SPI Speed      : 80MHz[0m
+[0;32mI (31) boot.esp32c6: SPI Mode       : DIO[0m
+[0;32mI (35) boot.esp32c6: SPI Flash Size : 2MB[0m
+[0;32mI (39) boot: Enabling RNG early entropy source...[0m
+[0;32mI (43) boot: Partition Table:[0m
+[0;32mI (46) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (52) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (58) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (65) boot:  2 factory          factory app      00 00 00010000 00100000[0m
+[0;32mI (72) boot: End of partition table[0m
+[0;32mI (75) esp_image: segment 0: paddr=00010020 vaddr=42020020 size=0acdch ( 44252) map[0m
+[0;32mI (91) esp_image: segment 1: paddr=0001ad04 vaddr=40800000 size=05314h ( 21268) load[0m
+[0;32mI (96) esp_image: segment 2: paddr=00020020 vaddr=42000020 size=18814h (100372) map[0m
+[0;32mI (116) esp_image: segment 3: paddr=0003883c vaddr=40805314 size=0993ch ( 39228) load[0m
+[0;32mI (128) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (128) boot: Disabling RNG early entropy source...[0m
+[0;32mI (138) cpu_start: Unicore app[0m
+[0;32mI (147) cpu_start: Pro cpu start user code[0m
+[0;32mI (147) cpu_start: cpu freq: 160000000 Hz[0m
+[0;32mI (147) app_init: Application information:[0m
+[0;32mI (147) app_init: Project name:     esp32c6_wroom1_pipeline[0m
+[0;32mI (152) app_init: App version:      1[0m
+[0;32mI (155) app_init: Compile time:     May 30 2026 23:19:43[0m
+[0;32mI (160) app_init: ELF file SHA256:  5cfdf3e41...[0m
+[0;32mI (165) app_init: ESP-IDF:          v5.5.1[0m
+[0;32mI (169) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (172) efuse_init: Max chip rev:     v0.99 [0m
+[0;32mI (176) efuse_init: Chip rev:         v0.2[0m
+[0;32mI (180) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (186) heap_init: At 4080FBC0 len 0006CA50 (434 KiB): RAM[0m
+[0;32mI (192) heap_init: At 4087C610 len 00002F54 (11 KiB): RAM[0m
+[0;32mI (197) heap_init: At 50000000 len 00003FE8 (15 KiB): RTCRAM[0m
+[0;32mI (203) spi_flash: detected chip: generic[0m
+[0;32mI (206) spi_flash: flash io: dio[0m
+[0;33mW (209) spi_flash: Detected size(16384k) larger than the size in the binary image header(2048k). Using the size in the binary image header.[0m
+[0;33mW (221) i2c: This driver is an old driver, please migrate your application code to adapt `driver/i2c_master.h`[0m
+[0;32mI (231) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (237) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (244) coexist: coex firmware version: b0bcc39[0m
+[0;32mI (252) coexist: coexist rom version 5b8dcfa[0m
+[0;32mI (253) main_task: Started on CPU0[0m
+[0;32mI (253) main_task: Calling app_main()[0m
+[0;32mI (253) sensor_check: ESP32-C6 single-board sensor check is running.[0m
+[0;32mI (263) sensor_check: Target: esp32c6[0m
+[0;32mI (263) sensor_check: CPU cores: 1[0m
+[0;32mI (263) sensor_check: Revision: 2[0m
+[0;32mI (273) sensor_check: Features: Wi-Fi BLE 802.15.4[0m
+[0;32mI (273) sensor_check: Detected flash size: 2 MB[0m
+[0;32mI (283) sensor_check: Minimum free heap: 455252 bytes[0m
+[0;32mI (283) sensor_check: Expected wiring: BH1750 SDA=GPIO6 SCL=GPIO7, AM2302 DATA=GPIO11, PIR OUT=GPIO10, RS485 TX=GPIO20 RX=GPIO21 DE,/RE=GPIO18[0m
+[0;32mI (293) sensor_check: BH1750 found at I2C address 0x23[0m
+[0;32mI (303) sensor_check: RS485 UART ready: TX=GPIO20 RX=GPIO21 DE,/RE=GPIO18 baud=9600 RX_idle=1[0m
+[0;32mI (513) sensor_check: sample=0 PIR=0 BH1750=ESP_OK lux=62.5 AM2302=ESP_OK temp=27.9C hum=62.7%[0m
+[0;32mI (953) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (953) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=62.5,T=27.9,H=62.7,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (1213) sensor_check: RS485 RX 95 byte(s): I�0,LUX=62.�)bB�62.7,BH=ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=62.5,T=27.9,H=6
+[0;32mI (1283) sensor_check: RS485 RX 34 byte(s): 2.7,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (2263) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (2263) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=62.5,T=27.9,H=62.7,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (2473) sensor_check: RS485 RX 35 byte(s): �r�b��27.9,�I!�ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (2523) sensor_check: sample=1 PIR=0 BH1750=ESP_OK lux=62.5 AM2302=ESP_OK temp=27.9C hum=62.6%[0m
+[0;32mI (2543) sensor_check: RS485 RX 86 byte(s): @A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=62.5,T=27.9,H=62.7,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (3593) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (3593) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=62.5,T=27.9,H=62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (3853) sensor_check: RS485 RX 95 byte(s): R��bbUa�62��r�bB�62.6,BH=ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=62.5,T=27.9,H=
+[0;32mI (3923) sensor_check: RS485 RX 35 byte(s): 62.6,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (4533) sensor_check: sample=2 PIR=0 BH1750=ESP_OK lux=62.5 AM2302=ESP_OK temp=27.9C hum=62.6%[0m
+[0;32mI (4903) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (4903) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=62.5,T=27.9,H=62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (5163) sensor_check: RS485 RX 95 byte(s): �&�b��27.9��b!�ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=62.5,T=27.9,H=62.6,BH=E
+[0;32mI (5233) sensor_check: RS485 RX 26 byte(s): SP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (6213) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (6213) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=62.5,T=27.9,H=62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (6473) sensor_check: RS485 RX 95 byte(s): UJՂbbUa�6���)bB�62.6,BH=ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=62.5,T=27.9,H=
+[0;32mI (6543) sensor_check: RS485 RX 35 byte(s): 62.6,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (6593) sensor_check: sample=3 PIR=0 BH1750=ESP_OK lux=62.5 AM2302=ESP_OK temp=27.9C hum=62.8%[0m
+[0;32mI (7523) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (7523) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=62.5,T=27.9,H=62.8,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (7783) sensor_check: RS485 RX 95 byte(s): O�r�b��27.�r�b!�ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=62.5,T=27.9,H=62.8,BH=
+[0;32mI (7853) sensor_check: RS485 RX 27 byte(s): ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (8603) sensor_check: sample=4 PIR=0 BH1750=ESP_OK lux=62.5 AM2302=ESP_OK temp=27.9C hum=62.8%[0m
+[0;32mI (8833) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (8833) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=62.5,T=27.9,H=62.8,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (9093) sensor_check: RS485 RX 95 byte(s): 	�I�0,LUX=���r�bB�62.8,BH=ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=62.5,T=27.9,H
+[0;32mI (9163) sensor_check: RS485 RX 36 byte(s): =62.8,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (10143) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (10143) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=62.5,T=27.9,H=62.8,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (10403) sensor_check: RS485 RX 95 byte(s): X=62.5,T=27�r�b!�ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=62.5,T=27.9,H=62.8,B
+[0;32mI (10473) sensor_check: RS485 RX 29 byte(s): H=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (10663) sensor_check: sample=5 PIR=0 BH1750=ESP_OK lux=62.5 AM2302=ESP_OK temp=27.9C hum=62.7%[0m
+[0;32mI (11453) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (11453) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=62.5,T=27.9,H=62.7,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (11663) sensor_check: RS485 RX 45 byte(s): b�%I�0,LU�Ւ�r�bB�62.7,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (11733) sensor_check: RS485 RX 86 byte(s): @A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=62.5,T=27.9,H=62.7,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (12693) sensor_check: sample=6 PIR=0 BH1750=ESP_OK lux=62.5 AM2302=ESP_OK temp=27.9C hum=62.8%[0m
+[0;32mI (12783) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (12783) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=62.5,T=27.9,H=62.8,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (13043) sensor_check: RS485 RX 95 byte(s): UX=62.5,T=2���r�b!�ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=62.5,T=27.9,H=62.8,
+[0;32mI (13113) sensor_check: RS485 RX 30 byte(s): BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (14093) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (14093) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=62.5,T=27.9,H=62.8,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (14353) sensor_check: RS485 RX 95 byte(s): �b�%I�0,L���27.9,H=62.8,BH=ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=62.5,T=27.9,
+[0;32mI (14423) sensor_check: RS485 RX 37 byte(s): H=62.8,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (14753) sensor_check: sample=7 PIR=0 BH1750=ESP_OK lux=63.3 AM2302=ESP_OK temp=27.9C hum=62.6%[0m
+[0;32mI (15403) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (15403) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (15663) sensor_check: RS485 RX 95 byte(s): LUX=63.3,T=��62.6,BH=ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.6
+[0;32mI (15733) sensor_check: RS485 RX 31 byte(s): ,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (16713) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (16713) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (16903) sensor_check: sample=8 PIR=0 BH1750=ESP_OK lux=63.3 AM2302=ESP_OK temp=27.9C hum=62.6%[0m
+[0;32mI (16973) sensor_check: RS485 RX 95 byte(s): �L	�I�0,��Ւ�r�bB�62.6�!�ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.9,H=
+[0;32mI (17043) sensor_check: RS485 RX 35 byte(s): 62.6,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (18023) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (18023) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (18233) sensor_check: RS485 RX 40 byte(s): ���ղ�r�b��B�62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (18303) sensor_check: RS485 RX 86 byte(s): @A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.6,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (18913) sensor_check: sample=9 PIR=0 BH1750=ESP_OK lux=63.3 AM2302=ESP_OK temp=27.9C hum=62.7%[0m
+[0;32mI (19353) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (19353) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.7,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (19613) sensor_check: RS485 RX 95 byte(s): ��b�%I�0�b��27.9,H=62.7,BH=ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.9,
+[0;32mI (19683) sensor_check: RS485 RX 37 byte(s): H=62.7,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (20663) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (20663) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.7,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (20923) sensor_check: sample=10 PIR=0 BH1750=ESP_OK lux=63.3 AM2302=ESP_OK temp=27.9C hum=62.5%[0m
+[0;32mI (20923) sensor_check: RS485 RX 95 byte(s): bbUa�63.3,T�����r�b!�ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.
+[0;32mI (21003) sensor_check: RS485 RX 32 byte(s): 7,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (21983) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (21983) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.5,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (22243) sensor_check: RS485 RX 95 byte(s): ���ղ�r�b�,H=62.5,BH=ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.
+[0;32mI (22313) sensor_check: RS485 RX 32 byte(s): 5,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (22923) sensor_check: sample=11 PIR=0 BH1750=ESP_OK lux=63.3 AM2302=ESP_OK temp=27.9C hum=62.6%[0m
+[0;32mI (23293) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (23293) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (23503) sensor_check: RS485 RX 44 byte(s): ��b�%I��3,T=27.9,H=62�!�ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (23573) sensor_check: RS485 RX 86 byte(s): @A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.6,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (24623) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (24623) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (24883) sensor_check: RS485 RX 95 byte(s): 0,LUX=63.3,�bB�62.6,BH=ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62
+[0;32mI (24933) sensor_check: sample=12 PIR=0 BH1750=ESP_OK lux=63.3 AM2302=ESP_OK temp=27.9C hum=62.6%[0m
+[0;32mI (24953) sensor_check: RS485 RX 33 byte(s): .6,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (25933) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (25933) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (26143) sensor_check: RS485 RX 43 byte(s): O�b�%I��b��27.9,H=62.BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (26213) sensor_check: RS485 RX 86 byte(s): @A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.6,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (26963) sensor_check: sample=13 PIR=0 BH1750=ESP_OK lux=63.3 AM2302=ESP_OK temp=27.9C hum=62.6%[0m
+[0;32mI (27263) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (27263) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (27523) sensor_check: RS485 RX 95 byte(s): �bbUa�63.3,�N	���r�b!�ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62
+[0;32mI (27593) sensor_check: RS485 RX 33 byte(s): .6,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (28573) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (28573) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (28833) sensor_check: RS485 RX 95 byte(s): O�b�%I��b��27.9,H=6�I!�ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62
+[0;32mI (28903) sensor_check: RS485 RX 33 byte(s): .6,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (29023) sensor_check: sample=14 PIR=0 BH1750=ESP_OK lux=63.3 AM2302=ESP_OK temp=27.9C hum=62.6%[0m
+[0;32mI (29883) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (29883) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (30143) sensor_check: RS485 RX 95 byte(s): �bbUa�63.3��bB�62.6,BH=ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62
+[0;32mI (30213) sensor_check: RS485 RX 33 byte(s): .6,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (31033) sensor_check: sample=15 PIR=0 BH1750=ESP_OK lux=63.3 AM2302=ESP_OK temp=27.8C hum=62.6%[0m
+[0;32mI (31193) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (31193) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.8,H=62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (31403) sensor_check: RS485 RX 42 byte(s): O�b�%I��b��27.8,H=6�I!�ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (31473) sensor_check: RS485 RX 86 byte(s): @A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.8,H=62.6,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (32523) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (32523) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.8,H=62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (32783) sensor_check: RS485 RX 95 byte(s): �bbUa�63.3,bB�62.6,BH=ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.8,H=62.
+[0;32mI (32853) sensor_check: RS485 RX 32 byte(s): 6,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (33043) sensor_check: sample=16 PIR=0 BH1750=ESP_OK lux=63.3 AM2302=ESP_OK temp=27.9C hum=62.6%[0m
+[0;32mI (33833) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (33833) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (34043) sensor_check: RS485 RX 44 byte(s): =01,PIR��b��27.9,H=62/BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (34113) sensor_check: RS485 RX 86 byte(s): @A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.6,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (35073) sensor_check: sample=17 PIR=0 BH1750=ESP_OK lux=63.3 AM2302=ESP_OK temp=27.9C hum=62.5%[0m
+[0;32mI (35163) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (35163) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.5,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (35373) sensor_check: RS485 RX 42 byte(s): 0,LUX=63.3,�bB�62.5,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (35443) sensor_check: RS485 RX 86 byte(s): @A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.5,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (36493) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (36493) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.9,H=62.5,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (36753) sensor_check: RS485 RX 95 byte(s): O�b�%I��3,T=27.9,H=62�/BH=ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.9,H
+[0;32mI (36823) sensor_check: RS485 RX 36 byte(s): =62.5,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (37083) sensor_check: sample=18 PIR=0 BH1750=ESP_OK lux=63.3 AM2302=ESP_OK temp=27.8C hum=62.6%[0m
+[0;32mI (37803) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (37803) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.8,H=62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (38063) sensor_check: RS485 RX 95 byte(s): 0,LUX=63.3,�bB�62.6,BH=ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.8,H=62
+[0;32mI (38133) sensor_check: RS485 RX 33 byte(s): .6,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (39093) sensor_check: sample=19 PIR=0 BH1750=ESP_OK lux=62.5 AM2302=ESP_OK temp=27.8C hum=62.6%[0m
+[0;32mI (39113) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (39113) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=62.5,T=27.8,H=62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (39373) sensor_check: RS485 RX 95 byte(s): ��b�%I��5,T=27.8,H=62�I!�ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=62.5,T=27.8,H=
+[0;32mI (39443) sensor_check: RS485 RX 35 byte(s): 62.6,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (40423) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (40423) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=62.5,T=27.8,H=62.6,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (40683) sensor_check: RS485 RX 95 byte(s): 0,LUX=62.5,�bB�62.6,BH=ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=62.5,T=27.8,H=62
+[0;32mI (40753) sensor_check: RS485 RX 33 byte(s): .6,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (41153) sensor_check: sample=20 PIR=0 BH1750=ESP_OK lux=63.3 AM2302=ESP_OK temp=27.8C hum=62.4%[0m
+[0;32mI (41733) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (41733) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.8,H=62.4,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (41993) sensor_check: RS485 RX 95 byte(s): O�b�%I�3,T=27.8,H=62�I!�ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.8,H=6
+[0;32mI (42063) sensor_check: RS485 RX 34 byte(s): 2.4,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (43043) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (43043) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.8,H=62.4,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (43233) sensor_check: sample=21 PIR=0 BH1750=ESP_OK lux=63.3 AM2302=ESP_OK temp=27.8C hum=62.5%[0m
+[0;32mI (43253) sensor_check: RS485 RX 42 byte(s): �bbUa�63.3,�bB�62.4,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (43323) sensor_check: RS485 RX 86 byte(s): @A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.8,H=62.4,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+
+[0;32mI (44373) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (44373) sensor_check: RS485 TX: @D,ID=01,PIR=0,LUX=63.3,T=27.8,H=62.5,BH=ESP_OK,DHT=ESP_OK[0m
+
+[0;32mI (44633) sensor_check: RS485 RX 95 byte(s): O�b�%I��b��27.8,H=6�.BH=ESP_OK,DHT=ESP_OK[0m
+@A,OK,LEN=60,DATA=@D,ID=01,PIR=0,LUX=63.3,T=27.8,H=6
+[0;32mI (44703) sensor_check: RS485 RX 34 byte(s): 2.5,BH=ESP_OK,DHT=ESP_OK<0D><0A>[0m
+

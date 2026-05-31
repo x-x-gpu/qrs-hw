@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ESP32-C6 多传感器 RS485 采集节点硬件方案报告</title>
+<style>
+:root { color-scheme: light; --text:#17202a; --muted:#546e7a; --line:#d8dee4; --soft:#f6f8fa; --link:#0b63ce; }
+* { box-sizing: border-box; }
+body { margin:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", Arial, sans-serif; color:var(--text); background:#fff; line-height:1.65; }
+main { max-width: 1120px; margin: 0 auto; padding: 40px 28px 72px; }
+h1 { font-size: 32px; line-height:1.25; margin: 0 0 18px; padding-bottom: 14px; border-bottom: 2px solid var(--line); }
+h2 { font-size: 24px; margin: 38px 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+h3 { font-size: 20px; margin: 28px 0 10px; }
+p { margin: 12px 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+table { border-collapse: collapse; width: 100%; margin: 14px 0 24px; font-size: 14px; }
+th, td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; }
+th { background: var(--soft); font-weight: 700; }
+pre { overflow-x: auto; background: #0f1720; color: #edf2f7; padding: 14px 16px; border-radius: 6px; line-height: 1.45; }
+code { font-family: Consolas, "Cascadia Mono", "Courier New", monospace; font-size: 0.95em; }
+p code, li code, td code { background: var(--soft); border: 1px solid var(--line); border-radius: 4px; padding: 1px 4px; color:#263238; }
+blockquote { margin: 16px 0; padding: 10px 16px; border-left: 4px solid #8aa4c2; background:#f8fbff; color:#263238; }
+ul, ol { padding-left: 26px; }
+img { max-width: 100%; height: auto; display: block; margin: 10px auto 18px; border: 1px solid var(--line); border-radius: 6px; background:#fff; }
+td img { max-height: 260px; object-fit: contain; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 32px 0; }
+@media print { main { max-width: none; padding: 20px; } a { color: #17202a; } pre { white-space: pre-wrap; } }
+</style>
+</head>
+<body>
+<main>
+<h1>ESP32-C6 多传感器 RS485 采集节点硬件方案报告</h1>
+<p>日期：2026-05-29</p>
+<h2>1. 结论</h2>
+<p>本方案建议把每块 ESP32-C6 做成一个独立采集节点：本地接入 GY-302/BH1750 光照模块、DHT22/AM2302 温湿度模块、HC-SR501 PIR 人体红外模块，再通过 3.3V RS485 收发器接入一条 A/B/GND 总线。战舰 V3 侧也外接一块 3.3V RS485 模块作为主站收发器；不要把 P7 上的 <code>485TX/485RX</code> 当成 RS485 总线的 <code>A/B</code> 端子。</p>
+<p>这样做的原因很直接：一个 ESP32-C6 接一套传感器时，TTL UART 可以点对点发送；但两个以上 ESP32-C6 不能把 TX 直接并到战舰 V3 的同一个 RX 上，否则会出现总线争用。RS485 半双工总线适合多个采集节点共线，只要协议规定“主站点名，节点应答”，就能避免同时发送。</p>
+<p>供电和 GND 的结论必须单独说明：</p>
+<ol>
+<li><strong>ESP32 节点需要独立供电</strong>。战舰 V3 不给两块 ESP32 供电，也不把战舰的 <code>3.3V</code> 或 <code>5V</code> 拉到 ESP32 节点。每块 ESP32 建议用自己的 USB、5V/VIN 或同一个外部 5V 电源分路供电；若用同一个外部 5V 电源，只能共用 5V 输入和 GND，不要把多个开发板的 <code>3V3</code> 输出互相并联。</li>
+<li><strong>传感器和本节点 RS485 模块由本节点 ESP32 供电</strong>。BH1750、AM2302、本节点 3.3V RS485 模块接本节点 ESP32 的 <code>3V3/GND</code>；HC-SR501 常见模块接本节点 <code>5V/VBUS/GND</code>，其 <code>OUT</code> 接 ESP32 前必须确认高电平不超过 3.3V。</li>
+<li><strong>所有参与通信的 GND 必须连在一起</strong>。战舰 V3 <code>GND</code>、战舰侧外置 RS485 <code>GND</code>、RS485 总线 <code>GND</code>、每块 ESP32 <code>GND</code>、每块节点 RS485 <code>GND</code>、各传感器 <code>GND</code> 都属于同一个参考地网络。这里的“共地”是把所有 <code>GND</code> 相连，不是把 <code>3.3V/5V/VCC</code> 相连。</li>
+<li><strong>RS485 主干只跨节点传 <code>A/B/GND</code></strong>。<code>A/B</code> 传差分信号，<code>GND</code> 做总线参考地；<code>3.3V</code>、<code>5V</code>、<code>VCC</code> 不作为跨节点电源线。</li>
+</ol>
+<p>默认接线如下：</p>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th style="text-align:right">ESP32-C6 引脚</th>
+<th>外设端子</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BH1750 I2C SDA</td>
+<td style="text-align:right">GPIO6 / IO6</td>
+<td>SDA</td>
+<td>3.3V I2C</td>
+</tr>
+<tr>
+<td>BH1750 I2C SCL</td>
+<td style="text-align:right">GPIO7 / IO7</td>
+<td>SCL</td>
+<td>100 kHz 足够</td>
+</tr>
+<tr>
+<td>AM2302 DATA</td>
+<td style="text-align:right">GPIO11 / IO11</td>
+<td>DATA</td>
+<td>DATA 到 3V3 加 4.7k-10k 上拉</td>
+</tr>
+<tr>
+<td>HC-SR501 OUT</td>
+<td style="text-align:right">GPIO10 / IO10</td>
+<td>OUT</td>
+<td>接入前先测 OUT 高电平</td>
+</tr>
+<tr>
+<td>RS485 UART TX</td>
+<td style="text-align:right">GPIO20 / IO20</td>
+<td>DI</td>
+<td>ESP32 发送到收发器</td>
+</tr>
+<tr>
+<td>RS485 UART RX</td>
+<td style="text-align:right">GPIO21 / IO21</td>
+<td>RO</td>
+<td>收发器返回 ESP32</td>
+</tr>
+<tr>
+<td>RS485 方向控制</td>
+<td style="text-align:right">GPIO18 / IO18</td>
+<td>DE 与 /RE</td>
+<td>发送置 1，接收置 0</td>
+</tr>
+<tr>
+<td>本节点 3.3V 电源</td>
+<td style="text-align:right">本节点 ESP32 <code>3V3</code></td>
+<td>BH1750、AM2302、本节点 RS485 VCC</td>
+<td>只给本节点小模块供电，不接战舰 3.3V，不接其它 ESP32 的 3V3</td>
+</tr>
+<tr>
+<td>本节点 5V 电源</td>
+<td style="text-align:right">本节点 ESP32 <code>5V/VBUS</code> 或外部 5V</td>
+<td>HC-SR501 VCC</td>
+<td>常见 HC-SR501 模块用 5V</td>
+</tr>
+<tr>
+<td>地</td>
+<td style="text-align:right">GND</td>
+<td>本节点所有模块 GND，并接 RS485 总线 GND</td>
+<td>必须和战舰、其它节点共地；只共 GND，不共 VCC</td>
+</tr>
+</tbody>
+</table>
+<p>战舰 V3 主站侧默认外接一块 3.3V RS485 模块。当前实物调试使用 <code>USART3</code> 的 <code>PB10/PB11</code> 和 <code>PF12</code> 方向控制；P7 上的 <code>485TX/485RX</code> 不是远端总线的 <code>A/B</code>：</p>
+<table>
+<thead>
+<tr>
+<th>战舰 V3 侧信号</th>
+<th>STM32F103 管脚</th>
+<th>接到哪里</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PB10</code> / USART3_TX</td>
+<td>PB10</td>
+<td>外置 RS485 模块 <code>DI</code></td>
+<td>战舰发送轮询帧</td>
+</tr>
+<tr>
+<td><code>PB11</code> / USART3_RX</td>
+<td>PB11</td>
+<td>外置 RS485 模块 <code>RO</code></td>
+<td>战舰接收节点应答</td>
+</tr>
+<tr>
+<td><code>PF12</code> / GPIO 输出</td>
+<td>PF12</td>
+<td>外置 RS485 模块 <code>DE</code> 与 <code>/RE</code></td>
+<td>发送前置发送态，发送完成后回到接收态</td>
+</tr>
+<tr>
+<td>战舰 <code>3.3V</code></td>
+<td>3.3V 电源</td>
+<td>外置模块 <code>VCC</code></td>
+<td>选 3.3V RS485 模块</td>
+</tr>
+<tr>
+<td>战舰 <code>GND</code></td>
+<td>GND</td>
+<td>外置模块 <code>GND</code>，并接总线 GND</td>
+<td>与所有节点 GND 相连</td>
+</tr>
+<tr>
+<td>外置 RS485 模块 <code>A</code></td>
+<td>差分总线</td>
+<td>总线 A 主干</td>
+<td>接所有 ESP32 节点 RS485 模块的 A</td>
+</tr>
+<tr>
+<td>外置 RS485 模块 <code>B</code></td>
+<td>差分总线</td>
+<td>总线 B 主干</td>
+<td>接所有 ESP32 节点 RS485 模块的 B</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>注意：不同 ESP32-C6 开发板排针物理位置不一致。实际接线时按板子丝印找 <code>GPIO6</code>、<code>IO6</code>、<code>3V3</code>、<code>GND</code> 等名称，不按本文示意图中的左右位置照搬。
+战舰 V3 板上可能还有 USB 转串口、RS232、蓝牙/串口、扩展排针等多处 <code>RX/TX</code> 丝印。本文默认不用这些口作为多节点总线入口。P7 上的 <code>485TX/485RX</code> 是 TTL 侧信号，不是差分 <code>A/B</code> 总线。</p>
+</blockquote>
+<h2>2. 资料归档说明</h2>
+<p>本报告使用的在线资料已经存入本报告目录下的 <code>references/</code> 文件夹。报告正文引用本地归档文件，同时在末尾保留原始在线链接，便于复查。ST 官方下载在本机网络环境下多次超时，因此战舰 V3 相关判断以正点原子资料页、战舰 V3 实物资料、以及 STM32F103ZET6 作为 3.3V MCU 的保守接口处理为准；不把未完整下载的 ST 文件列为有效来源。</p>
+<p>本地工程 <code>esp32-wroom-c6-workspace/main/app_main.c</code> 已经使用 <code>GPIO6/GPIO7/GPIO10/GPIO11</code> 做过单板传感器读取验证逻辑，本文默认引脚与该工程保持一致，并扩展了 RS485 的 <code>GPIO18/GPIO20/GPIO21</code>。</p>
+<h2>3. 元件清单与图示依据</h2>
+<p>下表覆盖本方案的主动模块和开发板。标准电阻、杜邦线、端子线作为辅料，在后续接线图中标出阻值和位置。</p>
+<table>
+<thead>
+<tr>
+<th>元件</th>
+<th>实际图</th>
+<th>电路图 / 引脚图</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ESP32-C6-DevKitC-1 / ESP32-C6-WROOM-1 开发板</td>
+<td><img src="references/esp32-c6-devkitc-1-photo.png" alt="ESP32-C6 实物图" /></td>
+<td><a href="references/esp32-c6-devkitc-1-schematics_v1.4.pdf">官方原理图 PDF</a>，<img src="references/esp32-c6-devkitc-1-pin-layout.png" alt="官方引脚图" /></td>
+</tr>
+<tr>
+<td>GY-302 / BH1750 光照模块</td>
+<td><img src="references/bh1750-module-photo.jpg" alt="BH1750 模块实物图" /></td>
+<td><img src="references/bh1750-module-circuit.png" alt="BH1750 模块电路图" />，<img src="references/bh1750-module-pinout.png" alt="BH1750 引脚图" /></td>
+</tr>
+<tr>
+<td>DHT22 / AM2302 温湿度模块</td>
+<td><img src="references/dht22-am2302-photo.jpg" alt="DHT22/AM2302 实物图" /></td>
+<td><img src="references/dht22-am2302-circuit.png" alt="DHT22/AM2302 接口电路图" />，<img src="references/dht22-am2302-pinout.png" alt="DHT22/AM2302 引脚图" /></td>
+</tr>
+<tr>
+<td>HC-SR501 PIR 人体红外模块</td>
+<td><img src="references/hc-sr501-photo.jpg" alt="HC-SR501 实物图" /></td>
+<td><img src="references/hc-sr501-circuit.png" alt="HC-SR501 接口电路图" />，<img src="references/hc-sr501-pinout.png" alt="HC-SR501 引脚图" /></td>
+</tr>
+<tr>
+<td>3.3V RS485 模块 / SP3485 收发器</td>
+<td><img src="references/waveshare-rs485-board-3v3-photo.jpg" alt="Waveshare RS485 Board 3.3V 实物图" /></td>
+<td><a href="references/waveshare-rs485-board-schematic.pdf">Waveshare 模块原理图 PDF</a>，<a href="references/maxlinear-sp3485-datasheet.pdf">SP3485 数据手册</a>，<a href="sp3485-rs485-local-circuit.svg">本文局部电路图</a></td>
+</tr>
+<tr>
+<td>正点原子战舰 V3 / STM32F103ZET6</td>
+<td><img src="references/openedv-stm32f103-warship-v3-photo.png" alt="战舰 V3 实物图" /></td>
+<td><a href="references/openedv-stm32f103-warship-v3.html">正点原子资料页归档</a>，本文给出 RS485 主站接口电路和接线表</td>
+</tr>
+</tbody>
+</table>
+<h2>4. 电气兼容性</h2>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th style="text-align:right">供电建议</th>
+<th style="text-align:right">信号电平</th>
+<th>与 ESP32-C6 兼容性判断</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ESP32-C6-WROOM-1</td>
+<td style="text-align:right">模组工作 3.0-3.6V；开发板通常由 USB/5V 转 3.3V</td>
+<td style="text-align:right">GPIO 为 3.3V 逻辑域</td>
+<td>外部数字信号按 3.3V 处理。避免让 5V 信号直接进 ESP32-C6 GPIO。</td>
+</tr>
+<tr>
+<td>BH1750 / GY-302</td>
+<td style="text-align:right">推荐 3.3V</td>
+<td style="text-align:right">I2C SDA/SCL 上拉到 3.3V</td>
+<td>BH1750 芯片 VCC 典型范围覆盖 3.3V，I2C 与 ESP32-C6 直接兼容。</td>
+</tr>
+<tr>
+<td>AM2302 / DHT22</td>
+<td style="text-align:right">本方案推荐 3.3V，短线使用</td>
+<td style="text-align:right">单总线 DATA 上拉到 3.3V</td>
+<td>AM2302 支持 3.3-5.5V；用 3.3V 时线长不宜超过约 1m，采样间隔不小于 2s。</td>
+</tr>
+<tr>
+<td>HC-SR501</td>
+<td style="text-align:right">常见模块用 5V</td>
+<td style="text-align:right">OUT 常见约 3.3V，但必须实测</td>
+<td>模块供电接 5V，OUT 接 ESP32 前用万用表确认高电平不超过 3.3V。若为 5V 输出，必须加分压或电平转换。</td>
+</tr>
+<tr>
+<td>SP3485 / 3.3V RS485</td>
+<td style="text-align:right">3.3V</td>
+<td style="text-align:right">DI/RO/DE/RE 与 3.3V MCU 兼容</td>
+<td>适合 ESP32-C6。不要把 5V MAX485 模块的 RO 直接接 ESP32-C6，除非确认模块 IO 兼容 3.3V。</td>
+</tr>
+<tr>
+<td>战舰 V3 / STM32F103ZET6</td>
+<td style="text-align:right">开发板自身供电</td>
+<td style="text-align:right">MCU 侧按 3.3V TTL 处理</td>
+<td>当前多节点方案中，战舰侧用外置 3.3V RS485 模块，由 USART3_TX/PB10、USART3_RX/PB11、PF12 驱动。不要把 ESP32 GPIO 接到 DB9 RS232 电平口，也不要把 P7 <code>485TX/485RX</code> 当作 <code>A/B</code> 总线。</td>
+</tr>
+</tbody>
+</table>
+<p>ESP32-C6 的启动配置涉及 GPIO8、GPIO9、GPIO15 等 strapping pins。本方案默认传感器和 RS485 控制避开这些启动敏感脚，减少上电状态被外设拉偏的风险。</p>
+<h2>5. 单节点完整电路</h2>
+<p>先看总图，再按接线表施工。</p>
+<p><img src="esp32-c6-sensor-node-complete-wiring.svg" alt="ESP32-C6 单个采集节点完整接线示意" /></p>
+<p>文字版示意如下：</p>
+<pre><code class="language-text">ESP32-C6 开发板丝印/排针              外设模块端子
+-----------------------              -----------------------------
+3V3  ------------------------------&gt; GY-302/BH1750 VCC
+3V3  ------------------------------&gt; AM2302 VCC
+3V3  ------------------------------&gt; 3.3V RS485 VCC
+5V/VBUS ---------------------------&gt; HC-SR501 VCC
+GND  ------------------------------&gt; GY-302/BH1750 GND
+GND  ------------------------------&gt; AM2302 GND
+GND  ------------------------------&gt; HC-SR501 GND
+GND  ------------------------------&gt; RS485 GND
+
+GPIO6 / IO6 -----------------------&gt; GY-302/BH1750 SDA
+GPIO7 / IO7 -----------------------&gt; GY-302/BH1750 SCL
+GPIO11 / IO11 ---------------------&gt; AM2302 DATA
+GPIO10 / IO10 &lt;-------------------- HC-SR501 OUT
+
+GPIO20 / IO20 ---------------------&gt; RS485 DI
+GPIO21 / IO21 &lt;-------------------- RS485 RO
+GPIO18 / IO18 ---------------------&gt; RS485 DE 与 /RE
+RS485 A ---------------------------&gt; RS485 总线 A
+RS485 B ---------------------------&gt; RS485 总线 B
+
+AM2302 DATA 与 3V3 之间加 4.7k-10k 上拉电阻。
+HC-SR501 OUT 接 ESP32 前，先用万用表测量高电平。
+</code></pre>
+<p>模块分组接线表：</p>
+<table>
+<thead>
+<tr>
+<th>分组</th>
+<th>模块端子</th>
+<th>接到哪里</th>
+<th>检查点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BH1750</td>
+<td>VCC</td>
+<td>ESP32 3V3</td>
+<td>不接 5V，避免 I2C 上拉到 5V</td>
+</tr>
+<tr>
+<td>BH1750</td>
+<td>GND</td>
+<td>ESP32 GND</td>
+<td>与 ESP32 共地</td>
+</tr>
+<tr>
+<td>BH1750</td>
+<td>SDA</td>
+<td>GPIO6 / IO6</td>
+<td>固件中配置为 I2C SDA</td>
+</tr>
+<tr>
+<td>BH1750</td>
+<td>SCL</td>
+<td>GPIO7 / IO7</td>
+<td>固件中配置为 I2C SCL</td>
+</tr>
+<tr>
+<td>BH1750</td>
+<td>ADDR</td>
+<td>悬空或 GND</td>
+<td>默认地址常用 <code>0x23</code>；拉高常用 <code>0x5C</code></td>
+</tr>
+<tr>
+<td>AM2302</td>
+<td>VCC</td>
+<td>ESP32 3V3</td>
+<td>短线实验推荐 3.3V</td>
+</tr>
+<tr>
+<td>AM2302</td>
+<td>DATA</td>
+<td>GPIO11 / IO11</td>
+<td>DATA 到 3V3 加 4.7k-10k 上拉</td>
+</tr>
+<tr>
+<td>AM2302</td>
+<td>GND</td>
+<td>ESP32 GND</td>
+<td>与 ESP32 共地</td>
+</tr>
+<tr>
+<td>HC-SR501</td>
+<td>VCC</td>
+<td>5V / VBUS</td>
+<td>常见模块需要 5V 供电</td>
+</tr>
+<tr>
+<td>HC-SR501</td>
+<td>OUT</td>
+<td>GPIO10 / IO10</td>
+<td>先测高电平，确认不超过 3.3V</td>
+</tr>
+<tr>
+<td>HC-SR501</td>
+<td>GND</td>
+<td>ESP32 GND</td>
+<td>与 ESP32 共地</td>
+</tr>
+<tr>
+<td>RS485</td>
+<td>VCC</td>
+<td>ESP32 3V3</td>
+<td>选 3.3V RS485 模块</td>
+</tr>
+<tr>
+<td>RS485</td>
+<td>GND</td>
+<td>ESP32 GND</td>
+<td>同时作为总线参考地</td>
+</tr>
+<tr>
+<td>RS485</td>
+<td>DI</td>
+<td>GPIO20 / IO20</td>
+<td>ESP32 UART TX</td>
+</tr>
+<tr>
+<td>RS485</td>
+<td>RO</td>
+<td>GPIO21 / IO21</td>
+<td>ESP32 UART RX</td>
+</tr>
+<tr>
+<td>RS485</td>
+<td>DE、/RE</td>
+<td>GPIO18 / IO18</td>
+<td>两端可并到同一方向控制脚</td>
+</tr>
+<tr>
+<td>RS485</td>
+<td>A、B</td>
+<td>总线 A、B</td>
+<td>若通信不通，可只对调一侧 A/B 测试</td>
+</tr>
+</tbody>
+</table>
+<p>本节点供电关系如下，避免把“谁给谁供电”混在一起。当前实验如果有两块 ESP32，推荐的实物供电是：战舰 V3 用自己的电源或 USB 供电；每块 ESP32 用自己的 USB 或外部 5V 分路供电；每块 ESP32 再给本节点的小模块供电。</p>
+<table>
+<thead>
+<tr>
+<th>电源来源</th>
+<th>被供电对象</th>
+<th>是否跨节点/接战舰 V3</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>战舰 V3 自身电源</td>
+<td>战舰 V3 主板、战舰侧外置 3.3V RS485 模块 VCC</td>
+<td>不给 ESP32 节点供电</td>
+<td>战舰 V3 只作为通信主站。战舰 <code>3.3V</code> 只给战舰侧外置 RS485 模块使用。</td>
+</tr>
+<tr>
+<td>节点 01 ESP32 的 USB/5V/VIN</td>
+<td>节点 01 ESP32 开发板</td>
+<td>可与其它节点共用同一个外部 5V 电源分路，但不从战舰取电</td>
+<td>推荐每块 ESP32 独立 USB；若共用一个 5V 电源，5V 分路供电，GND 共地。</td>
+</tr>
+<tr>
+<td>节点 02 ESP32 的 USB/5V/VIN</td>
+<td>节点 02 ESP32 开发板</td>
+<td>可与节点 01 共用外部 5V 电源分路，但不并联 <code>3V3</code> 输出</td>
+<td>两块 ESP32 的 <code>3V3</code> 输出不要互相连接，也不要接战舰 <code>3.3V</code>。</td>
+</tr>
+<tr>
+<td>本节点 ESP32-C6 开发板 <code>3V3</code></td>
+<td>本节点 BH1750 VCC、AM2302 VCC、本节点 3.3V RS485 模块 VCC</td>
+<td>不跨节点，不接战舰 V3 的 3.3V</td>
+<td>只给本节点低功耗 3.3V 模块供电；若 ESP32 重启或读数不稳，改用本节点外部 3.3V 稳压电源。</td>
+</tr>
+<tr>
+<td>本节点 ESP32-C6 开发板 <code>5V/VBUS</code> 或本节点外部 5V</td>
+<td>本节点 HC-SR501 VCC</td>
+<td>不跨节点，不接战舰 V3 的 5V</td>
+<td>常见 HC-SR501 需要 5V。若暂时接 3V3 能读到，不代表长期推荐。</td>
+</tr>
+<tr>
+<td>RS485 总线</td>
+<td>只传 A、B、GND 三根线</td>
+<td>不传 3.3V/5V/VCC</td>
+<td>A/B 是差分信号，GND 是参考地；VCC 不作为总线线缆。</td>
+</tr>
+</tbody>
+</table>
+<p>所有 GND 的关系必须明确：本节点 ESP32 的 <code>GND</code>、BH1750 <code>GND</code>、AM2302 <code>GND</code>、HC-SR501 <code>GND</code>、本节点 RS485 模块 <code>GND</code> 都接在同一个本地地线上；RS485 总线的 <code>GND</code> 再把本节点地与战舰 V3/其它节点的地连成同一个参考地。也就是说，RS485 的 <code>GND</code> 不是独立悬空地，而是总线参考地，最终要和战舰 V3 <code>GND</code>、每块 ESP32 <code>GND</code>、所有模块 <code>GND</code> 相连。正电源线仍然分开：战舰 <code>3.3V/5V</code> 不接 ESP32 节点，节点之间的 <code>3V3</code> 也不互接。</p>
+<h2>6. RS485 局部电路</h2>
+<p>SP3485 类 3.3V 收发器的局部连接如下：</p>
+<p><img src="sp3485-rs485-local-circuit.svg" alt="SP3485 / MAX3485 类 3.3V RS485 局部电路" /></p>
+<p>要点：</p>
+<ul>
+<li><code>DI</code> 接 ESP32 <code>TX</code>，<code>RO</code> 接 ESP32 <code>RX</code>。</li>
+<li><code>DE</code> 为发送使能，<code>/RE</code> 为接收使能。半双工常见做法是把 <code>DE</code> 和 <code>/RE</code> 并到同一个 GPIO：发送前置 1，发送完成后置 0。</li>
+<li><code>A/B</code> 是差分总线。不同模块可能把 A/B 命名方向做反，表现通常是超时但不会立刻烧坏。排障时只对调一侧 A/B。</li>
+<li>120Ω 终端电阻只放在总线物理两端。中间节点不要重复启用终端。</li>
+<li>偏置电阻只启用一处，优先放主站侧。若购买的模块已有偏置跳帽，先确认跳帽状态。</li>
+</ul>
+<h2>7. 多节点到战舰 V3 的最终接线方案</h2>
+<p>推荐方案 A：战舰 V3 直接作为 RS485 主站。每块 ESP32-C6 采集节点都是从站。</p>
+<p><img src="rs485-multinode-warship-v3-wiring.svg" alt="多 ESP32-C6 采集节点通过 RS485 接入战舰 V3" /></p>
+<p>总线文字版示意：</p>
+<pre><code class="language-text">跨节点只连三根线：A、B、GND。不要把主站 3.3V/VCC 拉到各节点。
+
+战舰侧外置 RS485 模块   节点 01 RS485 模块        节点 02 RS485 模块             节点 N RS485 模块
+A 端子  -------------&gt; A 端子  ---------------&gt; A 端子  ---- ... -----------&gt; A 端子
+B 端子  -------------&gt; B 端子  ---------------&gt; B 端子  ---- ... -----------&gt; B 端子
+GND 端子 ------------&gt; GND 端子 --------------&gt; GND 端子 ---- ... ----------&gt; GND 端子
+
+每个节点的 RS485 VCC/DI/RO/DE-/RE 只接本节点 ESP32-C6：
+  节点 RS485 VCC       -&gt; 本节点 ESP32-C6 3V3
+  节点 RS485 GND       -&gt; 本节点 ESP32-C6 GND，同时接总线 GND
+  节点 RS485 DI        &lt;- 本节点 ESP32-C6 GPIO20 / UART TX
+  节点 RS485 RO        -&gt; 本节点 ESP32-C6 GPIO21 / UART RX
+  节点 RS485 DE 与 /RE &lt;- 本节点 ESP32-C6 GPIO18
+
+只在总线两个物理端点加 120Ω：
+  端点 1：A 与 B 之间 120Ω
+  端点 2：A 与 B 之间 120Ω
+  中间节点不要加 120Ω
+
+主站侧启用一处 fail-safe 偏置；节点侧默认不启用偏置。
+</code></pre>
+<p>战舰 V3 主站侧接线：</p>
+<p>根据可查到的战舰 V3 资料和本次实物测试，P7 上的 <code>485TX/485RX</code> 属于板内 RS485 相关 TTL 侧信号，不是可直接接远端总线的 <code>A/B</code> 差分端子。当前可复现方案按实物接线处理：战舰侧外接一块 3.3V RS485 模块，由 <code>PB10/PB11/PF12</code> 控制。</p>
+<table>
+<thead>
+<tr>
+<th>战舰 V3 / STM32 侧</th>
+<th>战舰侧外置 RS485 模块或总线</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>战舰 3.3V</td>
+<td>外置模块 <code>VCC</code></td>
+<td>选 3.3V RS485 模块</td>
+</tr>
+<tr>
+<td>战舰 GND</td>
+<td>外置模块 <code>GND</code>，同时接总线 GND</td>
+<td>与 ESP32 节点总线 GND 相连</td>
+</tr>
+<tr>
+<td><code>PB10</code> / USART3_TX</td>
+<td>外置模块 <code>DI</code></td>
+<td>战舰 V3 发送轮询请求</td>
+</tr>
+<tr>
+<td><code>PB11</code> / USART3_RX</td>
+<td>外置模块 <code>RO</code></td>
+<td>战舰 V3 接收节点应答</td>
+</tr>
+<tr>
+<td><code>PF12</code> / GPIO 输出</td>
+<td>外置模块 <code>DE</code> 与 <code>/RE</code></td>
+<td>发送前置发送态，发送完成后回到接收态</td>
+</tr>
+<tr>
+<td>外置模块 <code>A</code></td>
+<td>总线 A</td>
+<td>接所有节点 A</td>
+</tr>
+<tr>
+<td>外置模块 <code>B</code></td>
+<td>总线 B</td>
+<td>接所有节点 B</td>
+</tr>
+</tbody>
+</table>
+<p>如果只使用板上原有跳帽，则 P7 的作用是把 <code>PA2</code> 短接到 <code>485TX</code>、把 <code>PA3</code> 短接到 <code>485RX</code>，相当于处理 USART2 到板内 RS485 相关电路的 TTL 侧连接。它不提供远端 RS485 的 <code>A/B</code> 差分接线点。当前工程不走这一路，而是从外置 RS485 模块的 <code>A/B/GND</code> 走多节点总线。</p>
+<p>战舰侧外置 RS485 模块到各节点 RS485 模块的端子级接线：</p>
+<table>
+<thead>
+<tr>
+<th>总线</th>
+<th>第一段</th>
+<th>第二段</th>
+<th>后续节点</th>
+<th>末端</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A 线</td>
+<td>战舰侧外置 RS485 <code>A</code> -&gt; 节点 01 RS485 <code>A</code></td>
+<td>节点 01 RS485 <code>A</code> -&gt; 节点 02 RS485 <code>A</code></td>
+<td>节点 02 <code>A</code> -&gt; ... -&gt; 节点 N <code>A</code></td>
+<td>节点 N RS485 <code>A</code></td>
+<td>所有 <code>A</code> 端子是同一根 A 主干；若通信一直超时，只对调一侧 A/B 验证。</td>
+</tr>
+<tr>
+<td>B 线</td>
+<td>战舰侧外置 RS485 <code>B</code> -&gt; 节点 01 RS485 <code>B</code></td>
+<td>节点 01 RS485 <code>B</code> -&gt; 节点 02 RS485 <code>B</code></td>
+<td>节点 02 <code>B</code> -&gt; ... -&gt; 节点 N <code>B</code></td>
+<td>节点 N RS485 <code>B</code></td>
+<td>所有 <code>B</code> 端子是同一根 B 主干，建议与 A 使用同一对双绞线。</td>
+</tr>
+<tr>
+<td>GND 参考线</td>
+<td>战舰侧外置 RS485 <code>GND</code> -&gt; 节点 01 RS485 <code>GND</code></td>
+<td>节点 01 RS485 <code>GND</code> -&gt; 节点 02 RS485 <code>GND</code></td>
+<td>节点 02 <code>GND</code> -&gt; ... -&gt; 节点 N <code>GND</code></td>
+<td>节点 N RS485 <code>GND</code></td>
+<td>用作总线参考地。各节点本地 ESP32 的 <code>GND</code> 也要接到本节点 RS485 <code>GND</code>。</td>
+</tr>
+</tbody>
+</table>
+<p>如果 RS485 模块端子排只有一个 <code>A/B/GND</code> 接线孔，不是再从主站拉多条长线到每个节点。正确做法是在每个节点附近用端子排/WAGO/焊接点把“上一段进线”和“下一段出线”并在同一个 <code>A</code>、<code>B</code>、<code>GND</code> 网络上，节点到主干的短支线尽量短。不要做“主站一端分出很多长支路”的星形接法。</p>
+<p>各节点 RS485 模块本地接线相同：</p>
+<table>
+<thead>
+<tr>
+<th>节点 RS485 模块端子</th>
+<th>接到本节点 ESP32-C6</th>
+<th>是否接到主站/其它节点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VCC</code></td>
+<td>本节点 <code>3V3</code></td>
+<td>不接主站 <code>VCC</code>，不接其它节点 <code>VCC</code></td>
+<td>每个节点本地供电，避免把 3.3V 当长距离电源总线。</td>
+</tr>
+<tr>
+<td><code>GND</code></td>
+<td>本节点 <code>GND</code></td>
+<td>接总线 <code>GND</code></td>
+<td>本地地与总线参考地相连。</td>
+</tr>
+<tr>
+<td><code>DI</code></td>
+<td><code>GPIO20 / IO20</code></td>
+<td>不接主站 <code>DI</code></td>
+<td>ESP32 UART TX 进入本节点收发器。</td>
+</tr>
+<tr>
+<td><code>RO</code></td>
+<td><code>GPIO21 / IO21</code></td>
+<td>不接主站 <code>RO</code></td>
+<td>本节点收发器输出到 ESP32 UART RX。</td>
+</tr>
+<tr>
+<td><code>DE</code> 与 <code>/RE</code></td>
+<td><code>GPIO18 / IO18</code></td>
+<td>不接其它节点控制脚</td>
+<td>两脚可并接；发送前置 1，发送完置 0。</td>
+</tr>
+<tr>
+<td><code>A</code></td>
+<td>不接 ESP32 GPIO</td>
+<td>接主站和所有节点的 <code>A</code></td>
+<td>RS485 差分 A 线。</td>
+</tr>
+<tr>
+<td><code>B</code></td>
+<td>不接 ESP32 GPIO</td>
+<td>接主站和所有节点的 <code>B</code></td>
+<td>RS485 差分 B 线。</td>
+</tr>
+</tbody>
+</table>
+<p>RS485 主干施工表：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:right">步骤</th>
+<th>从哪里</th>
+<th>到哪里</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right">1</td>
+<td>战舰侧外置 RS485 <code>A</code></td>
+<td>节点 01 <code>A</code>，再到节点 02 <code>A</code>，直到节点 N <code>A</code></td>
+<td>一条连续 A 主干，不做长星形支路</td>
+</tr>
+<tr>
+<td style="text-align:right">2</td>
+<td>战舰侧外置 RS485 <code>B</code></td>
+<td>节点 01 <code>B</code>，再到节点 02 <code>B</code>，直到节点 N <code>B</code></td>
+<td>B 与 A 同路由敷设，优先用双绞线</td>
+</tr>
+<tr>
+<td style="text-align:right">3</td>
+<td>战舰侧外置 RS485 <code>GND</code></td>
+<td>节点 01 <code>GND</code>，再到节点 02 <code>GND</code>，直到节点 N <code>GND</code></td>
+<td>作为参考地，降低共模漂移</td>
+</tr>
+<tr>
+<td style="text-align:right">4</td>
+<td>物理起点 A/B</td>
+<td>120Ω</td>
+<td>只装在端点</td>
+</tr>
+<tr>
+<td style="text-align:right">5</td>
+<td>物理末端 A/B</td>
+<td>120Ω</td>
+<td>只装在端点</td>
+</tr>
+<tr>
+<td style="text-align:right">6</td>
+<td>主站侧</td>
+<td>偏置电阻或模块偏置跳帽</td>
+<td>偏置只启用一处</td>
+</tr>
+</tbody>
+</table>
+<p>可选方案 B：增加一块 ESP32-C6 网关。网关通过 RS485 轮询采集节点，再通过 3.3V TTL UART 把汇总结果发给战舰 V3。这个方案让战舰 V3 软件更简单，但多一块网关板和一份网关固件。当前若只是课程/实验验证，建议先做方案 A。</p>
+<p>明确禁止的接法：</p>
+<pre><code class="language-text">ESP32 节点 01 TX ----+
+                     +---- 战舰 V3 USART_RX   不推荐 / 禁止
+ESP32 节点 02 TX ----+
+</code></pre>
+<p>TTL UART 是点对点接口，多个 TX 直接并联会互相驱动。哪怕软件设计了错峰发送，复位日志、异常输出、上电毛刺也可能抢占线路。</p>
+<h2>8. 默认通信协议</h2>
+<p>课堂调试和串口助手观察阶段，推荐先用 ASCII 帧，不急着上 Modbus RTU。</p>
+<pre><code class="language-text">主站请求：@Q,ID=03*CS\r\n
+节点应答：@D,ID=03,PIR=1,LUX=123.4,T=25.1,H=60.2*CS\r\n
+</code></pre>
+<p>字段建议：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@Q</code></td>
+<td>Query，主站查询帧</td>
+</tr>
+<tr>
+<td><code>@D</code></td>
+<td>Data，从站数据帧</td>
+</tr>
+<tr>
+<td><code>ID</code></td>
+<td>节点号，建议 <code>01</code> 到 <code>32</code></td>
+</tr>
+<tr>
+<td><code>PIR</code></td>
+<td>HC-SR501 当前触发状态，0 或 1</td>
+</tr>
+<tr>
+<td><code>LUX</code></td>
+<td>BH1750 光照值，单位 lux</td>
+</tr>
+<tr>
+<td><code>T</code></td>
+<td>AM2302 温度，单位摄氏度</td>
+</tr>
+<tr>
+<td><code>H</code></td>
+<td>AM2302 湿度，单位 <code>%RH</code></td>
+</tr>
+<tr>
+<td><code>CS</code></td>
+<td>校验，调试初期可占位，稳定后用 XOR 或 CRC8</td>
+</tr>
+</tbody>
+</table>
+<p>轮询策略：</p>
+<ul>
+<li>默认 <code>9600 8N1</code>，短线调试可提高到 <code>115200 8N1</code>。</li>
+<li>主站每次只询问一个 ID，等待 100-300ms；超时记录离线并继续下一个节点。</li>
+<li>AM2302 读数至少间隔 2 秒；节点本地缓存最近一次有效温湿度，主站轮询时直接返回缓存。</li>
+<li>PIR 属于事件/状态量，节点可返回当前电平，也可返回上一个轮询周期内是否触发过。</li>
+</ul>
+<h2>9. 上电与验证流程</h2>
+<p>上电前：</p>
+<ul>
+<li>万用表测 3V3-GND、5V-GND，确认无短路。</li>
+<li>确认正电源没有跨板误接：战舰 <code>3.3V/5V</code> 不接 ESP32 节点；节点 01 <code>3V3</code> 不接节点 02 <code>3V3</code>；RS485 主干不传 <code>VCC</code>。</li>
+<li>确认所有 GND 已经连通：战舰 <code>GND</code>、战舰侧 RS485 <code>GND</code>、RS485 总线 <code>GND</code>、每块 ESP32 <code>GND</code>、每块节点 RS485 <code>GND</code>、传感器 <code>GND</code> 都应是同一个参考地。</li>
+<li>只给 HC-SR501 上电，测 OUT 高电平。若 OUT 是 5V，先加分压或电平转换，再接 ESP32。</li>
+<li>确认 GY-302/BH1750 和 AM2302 的 VCC 接 3V3。</li>
+<li>确认 RS485 模块为 3.3V 型号，或至少确认 <code>RO/DI/DE/RE</code> 与 3.3V MCU 兼容。</li>
+<li>所有节点上电默认 <code>DE=0</code>，不要一上电就驱动 RS485 总线。</li>
+</ul>
+<p>单节点验证：</p>
+<ol>
+<li>只接 ESP32-C6、BH1750、AM2302、HC-SR501，不接 RS485。</li>
+<li>用 I2C scanner 或固件日志确认 BH1750 地址，常见为 <code>0x23</code>。</li>
+<li>AM2302 连续读 5 次，间隔不小于 2 秒，温湿度应合理。</li>
+<li>触发 HC-SR501，观察 GPIO10 从 0 变 1，并注意模块延时旋钮设置。</li>
+<li>串口打印一行数据，例如 <code>PIR=1,LUX=123.4,T=25.1,H=60.2</code>。</li>
+</ol>
+<p>RS485 验证：</p>
+<ol>
+<li>先只接一个 ESP32 节点和一个 USB-RS485 转换器或战舰 V3 主站。</li>
+<li>主站发送 <code>@Q,ID=01*CS</code>，确认节点应答 <code>@D,ID=01,...</code>。</li>
+<li>加入第二个节点，配置不同 ID，例如 <code>02</code>。</li>
+<li>主站轮询 <code>01</code>、<code>02</code>，确认只有被点名节点打开 <code>DE</code> 应答。</li>
+<li>启用总线两端 120Ω，确认中间节点终端关闭。</li>
+<li>断开节点 02 电源，主站应只记录 02 超时，节点 01 继续正常。</li>
+</ol>
+<h2>10. 最终建议</h2>
+<p>如果当前只验证一块 ESP32-C6，三类传感器可以直接接在同一块板上，串口日志先跑通。</p>
+<p>如果已经确定会有两块或更多 ESP32-C6，并且后续可能扩展到 N 个采集点，从第一版硬件就按 RS485 设计。每个采集节点硬件完全一致，只改节点 ID；战舰 V3 或 ESP32 网关作为主站轮询。这比给战舰 V3 增加多个 UART 更容易扩展，也避免了多个 TTL TX 并联的硬件风险。</p>
+<p>推荐落地顺序：</p>
+<ol>
+<li>完成单节点三传感器采集。</li>
+<li>给单节点加 3.3V RS485 模块，用 USB-RS485 或战舰 V3 轮询。</li>
+<li>加第二个节点，验证 ID 和 DE 方向控制。</li>
+<li>短线稳定后，再整理端子、终端电阻、偏置跳帽和节点标签。</li>
+<li>若现场线长、干扰或不同电源域明显，再升级到隔离 RS485 模块。</li>
+</ol>
+<h2>11. 参考资料</h2>
+<table>
+<thead>
+<tr>
+<th>资料</th>
+<th>本地归档</th>
+<th>在线来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Espressif ESP32-C6-DevKitC-1 User Guide</td>
+<td><a href="references/esp32-c6-devkitc-1-user-guide.html">esp32-c6-devkitc-1-user-guide.html</a></td>
+<td><a href="https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32c6/esp32-c6-devkitc-1/user_guide.html">https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32c6/esp32-c6-devkitc-1/user_guide.html</a></td>
+</tr>
+<tr>
+<td>ESP32-C6-DevKitC-1 Schematic v1.4</td>
+<td><a href="references/esp32-c6-devkitc-1-schematics_v1.4.pdf">esp32-c6-devkitc-1-schematics_v1.4.pdf</a></td>
+<td><a href="https://dl.espressif.com/dl/schematics/esp32-c6-devkitc-1-schematics_v1.4.pdf">https://dl.espressif.com/dl/schematics/esp32-c6-devkitc-1-schematics_v1.4.pdf</a></td>
+</tr>
+<tr>
+<td>ESP32-C6-WROOM-1/WROOM-1U Datasheet</td>
+<td><a href="references/esp32-c6-wroom-1_wroom-1u_datasheet_en.pdf">esp32-c6-wroom-1_wroom-1u_datasheet_en.pdf</a></td>
+<td><a href="https://www.espressif.com/sites/default/files/documentation/esp32-c6-wroom-1_wroom-1u_datasheet_en.pdf">https://www.espressif.com/sites/default/files/documentation/esp32-c6-wroom-1_wroom-1u_datasheet_en.pdf</a></td>
+</tr>
+<tr>
+<td>ESP-IDF UART Driver for ESP32-C6</td>
+<td><a href="references/esp-idf-esp32c6-uart-driver.html">esp-idf-esp32c6-uart-driver.html</a></td>
+<td><a href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32c6/api-reference/peripherals/uart.html">https://docs.espressif.com/projects/esp-idf/en/latest/esp32c6/api-reference/peripherals/uart.html</a></td>
+</tr>
+<tr>
+<td>ESP-IDF I2C Driver for ESP32-C6</td>
+<td><a href="references/esp-idf-esp32c6-i2c-driver.html">esp-idf-esp32c6-i2c-driver.html</a></td>
+<td><a href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32c6/api-reference/peripherals/i2c.html">https://docs.espressif.com/projects/esp-idf/en/latest/esp32c6/api-reference/peripherals/i2c.html</a></td>
+</tr>
+<tr>
+<td>ROHM BH1750FVI Datasheet mirror</td>
+<td><a href="references/rohm-bh1750fvi-datasheet.pdf">rohm-bh1750fvi-datasheet.pdf</a></td>
+<td><a href="https://www.robotpark.com/image/data/PRO/91458/bh1750fvi-e.pdf">https://www.robotpark.com/image/data/PRO/91458/bh1750fvi-e.pdf</a></td>
+</tr>
+<tr>
+<td>Components101 BH1750 Module Notes and Images</td>
+<td><a href="references/components101-bh1750-ambient-light-sensor.html">components101-bh1750-ambient-light-sensor.html</a></td>
+<td><a href="https://components101.com/sensors/bh1750-ambient-light-sensor">https://components101.com/sensors/bh1750-ambient-light-sensor</a></td>
+</tr>
+<tr>
+<td>Aosong AM2302 Technical Manual</td>
+<td><a href="references/aosong-am2302-technical-manual.pdf">aosong-am2302-technical-manual.pdf</a></td>
+<td><a href="https://www.aosong.com/uploadfiles/2025/04/20250417105409216.pdf">https://www.aosong.com/uploadfiles/2025/04/20250417105409216.pdf</a></td>
+</tr>
+<tr>
+<td>Components101 DHT22 Module Notes and Images</td>
+<td><a href="references/components101-dht22-pinout-specs-datasheet.html">components101-dht22-pinout-specs-datasheet.html</a></td>
+<td><a href="https://components101.com/sensors/dht22-pinout-specs-datasheet">https://components101.com/sensors/dht22-pinout-specs-datasheet</a></td>
+</tr>
+<tr>
+<td>Components101 HC-SR501 Module Notes and Images</td>
+<td><a href="references/components101-hc-sr501-pir-sensor.html">components101-hc-sr501-pir-sensor.html</a></td>
+<td><a href="https://components101.com/sensors/hc-sr501-pir-sensor">https://components101.com/sensors/hc-sr501-pir-sensor</a></td>
+</tr>
+<tr>
+<td>Waveshare RS485 Board (3.3V) Wiki</td>
+<td><a href="references/waveshare-rs485-board-3v3-wiki.html">waveshare-rs485-board-3v3-wiki.html</a></td>
+<td><a href="https://www.waveshare.com/wiki/RS485_Board_(3.3V)">https://www.waveshare.com/wiki/RS485_Board_(3.3V)</a></td>
+</tr>
+<tr>
+<td>Waveshare RS485 Board User Manual</td>
+<td><a href="references/waveshare-rs485-board-user-manual.pdf">waveshare-rs485-board-user-manual.pdf</a></td>
+<td><a href="https://files.waveshare.com/upload/9/95/RS485-Board-UserManual.pdf">https://files.waveshare.com/upload/9/95/RS485-Board-UserManual.pdf</a></td>
+</tr>
+<tr>
+<td>Waveshare RS485 Board Schematic</td>
+<td><a href="references/waveshare-rs485-board-schematic.pdf">waveshare-rs485-board-schematic.pdf</a></td>
+<td><a href="https://files.waveshare.com/upload/b/bf/RS485-Board-Schematic.pdf">https://files.waveshare.com/upload/b/bf/RS485-Board-Schematic.pdf</a></td>
+</tr>
+<tr>
+<td>MaxLinear SP3485 Datasheet</td>
+<td><a href="references/maxlinear-sp3485-datasheet.pdf">maxlinear-sp3485-datasheet.pdf</a></td>
+<td><a href="https://www.maxlinear.com/document?id=22069">https://www.maxlinear.com/document?id=22069</a></td>
+</tr>
+<tr>
+<td>TI RS-485 Design Guide</td>
+<td><a href="references/ti-rs485-design-guide-slla272d.pdf">ti-rs485-design-guide-slla272d.pdf</a></td>
+<td><a href="https://www.ti.com/lit/an/slla272d/slla272d.pdf">https://www.ti.com/lit/an/slla272d/slla272d.pdf</a></td>
+</tr>
+<tr>
+<td>正点原子战舰 V3 资料页</td>
+<td><a href="references/openedv-stm32f103-warship-v3.html">openedv-stm32f103-warship-v3.html</a></td>
+<td><a href="http://www.openedv.com/docs/boards/stm32/zdyz_stm32f103_warship.html">http://www.openedv.com/docs/boards/stm32/zdyz_stm32f103_warship.html</a></td>
+</tr>
+<tr>
+<td>正点原子战舰 V3 RST 原始页面</td>
+<td><a href="references/openedv-stm32f103-warship-v3.rst">openedv-stm32f103-warship-v3.rst</a></td>
+<td><a href="https://raw.githubusercontent.com/alientek-openedv/Products/master/zdyz_docs/boards/stm32/zdyz_stm32f103_warship.rst">https://raw.githubusercontent.com/alientek-openedv/Products/master/zdyz_docs/boards/stm32/zdyz_stm32f103_warship.rst</a></td>
+</tr>
+</tbody>
+</table>
+</main>
+</body>
+</html>

@@ -1,0 +1,278 @@
+Command: /home/x/.espressif/tools/python/v5.5.1/venv/bin/python /home/x/.espressif/v5.5.1/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix riscv32-esp-elf- --target esp32c6 --revision 0 --decode-panic backtrace /home/x/qrs-hw/esp32-wroom-c6-workspace/build/esp32c6_wroom1_pipeline.elf /home/x/qrs-hw/esp32-wroom-c6-workspace/build/bootloader/bootloader.elf -m '/home/x/.espressif/tools/python/v5.5.1/venv/bin/python' '/home/x/.espressif/v5.5.1/esp-idf/tools/idf.py' '-p' '/dev/ttyACM0'
+ESP-ROM:esp32c6-20220919
+Build:Sep 19 2022
+rst:0x1 (POWERON),boot:0xc (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:2
+load:0x40875730,len:0x1744
+load:0x4086b910,len:0xe78
+load:0x4086e610,len:0x31c8
+entry 0x4086b91a
+[0;32mI (23) boot: ESP-IDF v5.5.1 2nd stage bootloader[0m
+[0;32mI (24) boot: compile time May 30 2026 23:19:48[0m
+[0;32mI (24) boot: chip revision: v0.2[0m
+[0;32mI (24) boot: efuse block revision: v0.3[0m
+[0;32mI (27) boot.esp32c6: SPI Speed      : 80MHz[0m
+[0;32mI (31) boot.esp32c6: SPI Mode       : DIO[0m
+[0;32mI (35) boot.esp32c6: SPI Flash Size : 2MB[0m
+[0;32mI (38) boot: Enabling RNG early entropy source...[0m
+[0;32mI (43) boot: Partition Table:[0m
+[0;32mI (46) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (52) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (58) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (65) boot:  2 factory          factory app      00 00 00010000 00100000[0m
+[0;32mI (72) boot: End of partition table[0m
+[0;32mI (75) esp_image: segment 0: paddr=00010020 vaddr=42020020 size=0acach ( 44204) map[0m
+[0;32mI (91) esp_image: segment 1: paddr=0001acd4 vaddr=40800000 size=05344h ( 21316) load[0m
+[0;32mI (96) esp_image: segment 2: paddr=00020020 vaddr=42000020 size=18754h (100180) map[0m
+[0;32mI (116) esp_image: segment 3: paddr=0003877c vaddr=40805344 size=0990ch ( 39180) load[0m
+[0;32mI (128) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (128) boot: Disabling RNG early entropy source...[0m
+[0;32mI (138) cpu_start: Unicore app[0m
+[0;32mI (146) cpu_start: Pro cpu start user code[0m
+[0;32mI (147) cpu_start: cpu freq: 160000000 Hz[0m
+[0;32mI (147) app_init: Application information:[0m
+[0;32mI (147) app_init: Project name:     esp32c6_wroom1_pipeline[0m
+[0;32mI (152) app_init: App version:      1[0m
+[0;32mI (155) app_init: Compile time:     May 30 2026 23:19:43[0m
+[0;32mI (160) app_init: ELF file SHA256:  ede36accd...[0m
+[0;32mI (165) app_init: ESP-IDF:          v5.5.1[0m
+[0;32mI (168) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (172) efuse_init: Max chip rev:     v0.99 [0m
+[0;32mI (176) efuse_init: Chip rev:         v0.2[0m
+[0;32mI (180) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (186) heap_init: At 4080FBC0 len 0006CA50 (434 KiB): RAM[0m
+[0;32mI (191) heap_init: At 4087C610 len 00002F54 (11 KiB): RAM[0m
+[0;32mI (197) heap_init: At 50000000 len 00003FE8 (15 KiB): RTCRAM[0m
+[0;32mI (203) spi_flash: detected chip: generic[0m
+[0;32mI (206) spi_flash: flash io: dio[0m
+[0;33mW (209) spi_flash: Detected size(16384k) larger than the size in the binary image header(2048k). Using the size in the binary image header.[0m
+[0;33mW (221) i2c: This driver is an old driver, please migrate your application code to adapt `driver/i2c_master.h`[0m
+[0;32mI (231) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (237) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (244) coexist: coex firmware version: b0bcc39[0m
+[0;32mI (252) coexist: coexist rom version 5b8dcfa[0m
+[0;32mI (253) main_task: Started on CPU0[0m
+[0;32mI (253) main_task: Calling app_main()[0m
+[0;32mI (253) sensor_check: ESP32-C6 single-board sensor check is running.[0m
+[0;32mI (263) sensor_check: Target: esp32c6[0m
+[0;32mI (263) sensor_check: CPU cores: 1[0m
+[0;32mI (263) sensor_check: Revision: 2[0m
+[0;32mI (273) sensor_check: Features: Wi-Fi BLE 802.15.4[0m
+[0;32mI (273) sensor_check: Detected flash size: 2 MB[0m
+[0;32mI (283) sensor_check: Minimum free heap: 455252 bytes[0m
+[0;32mI (283) sensor_check: Expected wiring: BH1750 SDA=GPIO6 SCL=GPIO7, AM2302 DATA=GPIO11, PIR OUT=GPIO10, RS485 TX=GPIO20 RX=GPIO21 DE,/RE=GPIO18[0m
+[0;32mI (293) sensor_check: BH1750 found at I2C address 0x23[0m
+[0;32mI (303) sensor_check: RS485 UART ready: TX=GPIO20 RX=GPIO21 DE,/RE=GPIO18 baud=9600 RX_idle=1[0m
+[0;32mI (513) sensor_check: sample=0 PIR=0 BH1750=ESP_OK lux=163.3 AM2302=ESP_OK temp=27.9C hum=67.8%[0m
+[0;32mI (2543) sensor_check: sample=1 PIR=0 BH1750=ESP_OK lux=163.3 AM2302=ESP_OK temp=27.9C hum=67.6%[0m
+[0;32mI (4573) sensor_check: sample=2 PIR=0 BH1750=ESP_OK lux=163.3 AM2302=ESP_OK temp=27.9C hum=67.9%[0m
+[0;32mI (6603) sensor_check: sample=3 PIR=0 BH1750=ESP_OK lux=163.3 AM2302=ESP_OK temp=27.9C hum=68.0%[0m
+[0;32mI (8633) sensor_check: sample=4 PIR=0 BH1750=ESP_OK lux=163.3 AM2302=ESP_OK temp=27.9C hum=67.8%[0m
+[0;32mI (10663) sensor_check: sample=5 PIR=0 BH1750=ESP_OK lux=163.3 AM2302=ESP_OK temp=27.9C hum=68.1%[0m
+[0;32mI (12693) sensor_check: sample=6 PIR=0 BH1750=ESP_OK lux=163.3 AM2302=ESP_OK temp=27.9C hum=67.8%[0m
+[0;32mI (14723) sensor_check: sample=7 PIR=0 BH1750=ESP_OK lux=163.3 AM2302=ESP_OK temp=27.9C hum=68.0%[0m
+[0;32mI (15933) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (15933) sensor_check: RS485 TX probe: @D,OK[0m
+
+[0;32mI (16723) sensor_check: sample=8 PIR=0 BH1750=ESP_OK lux=163.3 AM2302=ESP_OK temp=27.9C hum=68.0%[0m
+[0;32mI (18753) sensor_check: sample=9 PIR=0 BH1750=ESP_OK lux=163.3 AM2302=ESP_OK temp=27.9C hum=67.9%[0m
+[0;32mI (20783) sensor_check: sample=10 PIR=0 BH1750=ESP_OK lux=163.3 AM2302=ESP_OK temp=27.9C hum=67.9%[0m
+[0;32mI (22813) sensor_check: sample=11 PIR=0 BH1750=ESP_OK lux=163.3 AM2302=ESP_OK temp=27.9C hum=68.0%[0m
+[0;32mI (24843) sensor_check: sample=12 PIR=0 BH1750=ESP_OK lux=163.3 AM2302=ESP_OK temp=27.9C hum=68.0%[0m
+[0;32mI (26873) sensor_check: sample=13 PIR=0 BH1750=ESP_OK lux=163.3 AM2302=ESP_OK temp=27.9C hum=68.0%[0m
+[0;32mI (28903) sensor_check: sample=14 PIR=0 BH1750=ESP_OK lux=163.3 AM2302=ESP_OK temp=27.9C hum=67.9%[0m
+[0;32mI (30933) sensor_check: sample=15 PIR=0 BH1750=ESP_OK lux=163.3 AM2302=ESP_OK temp=27.9C hum=68.1%[0m
+[0;32mI (32963) sensor_check: sample=16 PIR=0 BH1750=ESP_OK lux=163.3 AM2302=ESP_OK temp=27.9C hum=68.0%[0m
+[0;32mI (34993) sensor_check: sample=17 PIR=0 BH1750=ESP_OK lux=163.3 AM2302=ESP_OK temp=27.9C hum=68.2%[0m
+[0;32mI (37023) sensor_check: sample=18 PIR=0 BH1750=ESP_OK lux=162.5 AM2302=ESP_OK temp=27.9C hum=68.0%[0m
+[0;32mI (39053) sensor_check: sample=19 PIR=0 BH1750=ESP_OK lux=162.5 AM2302=ESP_OK temp=27.9C hum=68.2%[0m
+[0;32mI (41083) sensor_check: sample=20 PIR=0 BH1750=ESP_OK lux=162.5 AM2302=ESP_OK temp=27.9C hum=68.1%[0m
+[0;32mI (43113) sensor_check: sample=21 PIR=0 BH1750=ESP_OK lux=162.5 AM2302=ESP_OK temp=27.9C hum=68.2%[0m
+[0;32mI (45143) sensor_check: sample=22 PIR=0 BH1750=ESP_OK lux=162.5 AM2302=ESP_OK temp=27.9C hum=68.1%[0m
+[0;32mI (47173) sensor_check: sample=23 PIR=0 BH1750=ESP_OK lux=162.5 AM2302=ESP_OK temp=27.9C hum=68.2%[0m
+[0;32mI (49203) sensor_check: sample=24 PIR=0 BH1750=ESP_OK lux=162.5 AM2302=ESP_OK temp=27.9C hum=68.2%[0m
+[0;32mI (51233) sensor_check: sample=25 PIR=0 BH1750=ESP_OK lux=161.7 AM2302=ESP_OK temp=27.9C hum=68.3%[0m
+[0;32mI (53263) sensor_check: sample=26 PIR=0 BH1750=ESP_OK lux=162.5 AM2302=ESP_OK temp=27.9C hum=68.3%[0m
+[0;32mI (53493) sensor_check: RS485 RX 24 byte(s): @A,TIMEOUT,LEN=0,DATA=[0m
+
+[0;32mI (54543) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (54543) sensor_check: RS485 TX probe: @D,OK[0m
+
+[0;32mI (55263) sensor_check: sample=27 PIR=0 BH1750=ESP_OK lux=161.7 AM2302=ESP_OK temp=27.9C hum=68.2%[0m
+[0;32mI (57293) sensor_check: sample=28 PIR=0 BH1750=ESP_OK lux=148.3 AM2302=ESP_OK temp=27.9C hum=68.2%[0m
+[0;32mI (59323) sensor_check: sample=29 PIR=0 BH1750=ESP_OK lux=115.8 AM2302=ESP_OK temp=27.9C hum=68.2%[0m
+[0;32mI (61353) sensor_check: sample=30 PIR=0 BH1750=ESP_OK lux=150.8 AM2302=ESP_OK temp=27.9C hum=68.3%[0m
+[0;32mI (63383) sensor_check: sample=31 PIR=0 BH1750=ESP_OK lux=122.5 AM2302=ESP_OK temp=27.9C hum=68.4%[0m
+[0;32mI (65413) sensor_check: sample=32 PIR=0 BH1750=ESP_OK lux=158.3 AM2302=ESP_OK temp=27.8C hum=68.2%[0m
+[0;32mI (67443) sensor_check: sample=33 PIR=0 BH1750=ESP_OK lux=159.2 AM2302=ESP_OK temp=27.9C hum=68.3%[0m
+[0;32mI (69473) sensor_check: sample=34 PIR=0 BH1750=ESP_OK lux=159.2 AM2302=ESP_OK temp=27.9C hum=68.4%[0m
+[0;32mI (71503) sensor_check: sample=35 PIR=0 BH1750=ESP_OK lux=159.2 AM2302=ESP_OK temp=27.8C hum=68.1%[0m
+[0;32mI (73533) sensor_check: sample=36 PIR=0 BH1750=ESP_OK lux=159.2 AM2302=ESP_OK temp=27.9C hum=68.4%[0m
+[0;32mI (75563) sensor_check: sample=37 PIR=0 BH1750=ESP_OK lux=159.2 AM2302=ESP_OK temp=27.9C hum=68.3%[0m
+[0;32mI (77593) sensor_check: sample=38 PIR=0 BH1750=ESP_OK lux=159.2 AM2302=ESP_OK temp=27.9C hum=68.3%[0m
+[0;32mI (79623) sensor_check: sample=39 PIR=0 BH1750=ESP_OK lux=159.2 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (81653) sensor_check: sample=40 PIR=0 BH1750=ESP_OK lux=159.2 AM2302=ESP_OK temp=27.8C hum=68.2%[0m
+[0;32mI (83683) sensor_check: sample=41 PIR=0 BH1750=ESP_OK lux=159.2 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (85713) sensor_check: sample=42 PIR=0 BH1750=ESP_OK lux=159.2 AM2302=ESP_OK temp=27.9C hum=68.4%[0m
+[0;32mI (87743) sensor_check: sample=43 PIR=0 BH1750=ESP_OK lux=159.2 AM2302=ESP_OK temp=27.8C hum=68.3%[0m
+[0;32mI (89773) sensor_check: sample=44 PIR=0 BH1750=ESP_OK lux=159.2 AM2302=ESP_OK temp=27.9C hum=68.2%[0m
+[0;32mI (91803) sensor_check: sample=45 PIR=0 BH1750=ESP_OK lux=160.8 AM2302=ESP_OK temp=27.9C hum=68.3%[0m
+[0;32mI (92103) sensor_check: RS485 RX 24 byte(s): @A,TIMEOUT,LEN=0,DATA=[0m
+
+[0;32mI (93153) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (93153) sensor_check: RS485 TX probe: @D,OK[0m
+
+[0;32mI (93803) sensor_check: sample=46 PIR=0 BH1750=ESP_OK lux=159.2 AM2302=ESP_OK temp=27.9C hum=68.3%[0m
+[0;32mI (95833) sensor_check: sample=47 PIR=0 BH1750=ESP_OK lux=159.2 AM2302=ESP_OK temp=27.9C hum=68.3%[0m
+[0;32mI (97863) sensor_check: sample=48 PIR=0 BH1750=ESP_OK lux=159.2 AM2302=ESP_OK temp=27.9C hum=68.4%[0m
+[0;32mI (99893) sensor_check: sample=49 PIR=0 BH1750=ESP_OK lux=159.2 AM2302=ESP_OK temp=27.9C hum=68.2%[0m
+[0;32mI (101923) sensor_check: sample=50 PIR=0 BH1750=ESP_OK lux=158.3 AM2302=ESP_OK temp=27.9C hum=68.3%[0m
+[0;32mI (103953) sensor_check: sample=51 PIR=0 BH1750=ESP_OK lux=158.3 AM2302=ESP_OK temp=27.9C hum=68.2%[0m
+[0;32mI (105983) sensor_check: sample=52 PIR=0 BH1750=ESP_OK lux=158.3 AM2302=ESP_OK temp=27.9C hum=68.4%[0m
+[0;32mI (108013) sensor_check: sample=53 PIR=0 BH1750=ESP_OK lux=158.3 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (110043) sensor_check: sample=54 PIR=0 BH1750=ESP_OK lux=158.3 AM2302=ESP_OK temp=27.8C hum=68.3%[0m
+[0;32mI (112073) sensor_check: sample=55 PIR=0 BH1750=ESP_OK lux=158.3 AM2302=ESP_OK temp=27.9C hum=68.2%[0m
+[0;32mI (114103) sensor_check: sample=56 PIR=0 BH1750=ESP_OK lux=158.3 AM2302=ESP_OK temp=27.8C hum=68.5%[0m
+[0;32mI (116133) sensor_check: sample=57 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.9C hum=68.4%[0m
+[0;32mI (118163) sensor_check: sample=58 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.9C hum=68.4%[0m
+[0;32mI (120193) sensor_check: sample=59 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.9C hum=68.4%[0m
+[0;32mI (122223) sensor_check: sample=60 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.9C hum=68.4%[0m
+[0;32mI (124253) sensor_check: sample=61 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.8C hum=68.2%[0m
+[0;32mI (126283) sensor_check: sample=62 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.8C hum=68.4%[0m
+[0;32mI (128313) sensor_check: sample=63 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.8C hum=68.2%[0m
+[0;32mI (130343) sensor_check: sample=64 PIR=0 BH1750=ESP_OK lux=156.7 AM2302=ESP_OK temp=27.9C hum=68.3%[0m
+[0;32mI (130723) sensor_check: RS485 RX 24 byte(s): @A,TIMEOUT,LEN=0,DATA=[0m
+
+[0;32mI (131773) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (131773) sensor_check: RS485 TX probe: @D,OK[0m
+
+[0;32mI (132423) sensor_check: sample=65 PIR=0 BH1750=ESP_OK lux=156.7 AM2302=ESP_OK temp=27.9C hum=68.4%[0m
+[0;32mI (134453) sensor_check: sample=66 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.8C hum=68.2%[0m
+[0;32mI (136483) sensor_check: sample=67 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.9C hum=68.4%[0m
+[0;32mI (138513) sensor_check: sample=68 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.9C hum=68.3%[0m
+[0;32mI (140543) sensor_check: sample=69 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.9C hum=68.3%[0m
+[0;32mI (142573) sensor_check: sample=70 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.9C hum=68.4%[0m
+[0;32mI (144603) sensor_check: sample=71 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.9C hum=68.4%[0m
+[0;32mI (146633) sensor_check: sample=72 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.9C hum=68.2%[0m
+[0;32mI (148663) sensor_check: sample=73 PIR=0 BH1750=ESP_OK lux=156.7 AM2302=ESP_OK temp=27.8C hum=68.3%[0m
+[0;32mI (150693) sensor_check: sample=74 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.9C hum=68.3%[0m
+[0;32mI (152723) sensor_check: sample=75 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.8C hum=68.4%[0m
+[0;32mI (152883) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (152883) sensor_check: RS485 TX probe: @D,OK[0m
+
+[0;32mI (154723) sensor_check: sample=76 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.9C hum=68.4%[0m
+[0;32mI (156353) sensor_check: RS485 RX 26 byte(s): @P,PA3_LOW=0,HIGH=120000[0m
+
+[0;32mI (156753) sensor_check: sample=77 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.9C hum=68.4%[0m
+[0;32mI (158783) sensor_check: sample=78 PIR=0 BH1750=ESP_OK lux=156.7 AM2302=ESP_OK temp=27.8C hum=68.4%[0m
+[0;32mI (160813) sensor_check: sample=79 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (162843) sensor_check: sample=80 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.8C hum=68.5%[0m
+[0;32mI (164873) sensor_check: sample=81 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.8C hum=68.5%[0m
+[0;32mI (166903) sensor_check: sample=82 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.8C hum=68.5%[0m
+[0;32mI (168933) sensor_check: sample=83 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (170963) sensor_check: sample=84 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.9C hum=68.6%[0m
+[0;32mI (172993) sensor_check: sample=85 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.8C hum=68.7%[0m
+[0;32mI (175023) sensor_check: sample=86 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.8C hum=68.5%[0m
+[0;32mI (177053) sensor_check: sample=87 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.8C hum=68.3%[0m
+[0;32mI (179083) sensor_check: sample=88 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.8C hum=68.5%[0m
+[0;32mI (181113) sensor_check: sample=89 PIR=0 BH1750=ESP_OK lux=157.5 AM2302=ESP_OK temp=27.8C hum=68.5%[0m
+[0;32mI (183143) sensor_check: sample=90 PIR=0 BH1750=ESP_OK lux=156.7 AM2302=ESP_OK temp=27.9C hum=68.3%[0m
+[0;32mI (185173) sensor_check: sample=91 PIR=0 BH1750=ESP_OK lux=156.7 AM2302=ESP_OK temp=27.8C hum=68.6%[0m
+[0;32mI (187203) sensor_check: sample=92 PIR=0 BH1750=ESP_OK lux=133.3 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (189233) sensor_check: sample=93 PIR=0 BH1750=ESP_OK lux=135.8 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (191263) sensor_check: sample=94 PIR=0 BH1750=ESP_OK lux=150.8 AM2302=ESP_OK temp=27.9C hum=68.3%[0m
+[0;32mI (193293) sensor_check: sample=95 PIR=0 BH1750=ESP_OK lux=152.5 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (193943) sensor_check: RS485 RX 24 byte(s): @A,TIMEOUT,LEN=0,DATA=[0m
+
+[0;32mI (194933) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (194933) sensor_check: RS485 TX probe: @D,OK[0m
+
+[0;32mI (195583) sensor_check: sample=96 PIR=0 BH1750=ESP_OK lux=156.7 AM2302=ESP_OK temp=27.8C hum=68.4%[0m
+[0;32mI (197613) sensor_check: sample=97 PIR=0 BH1750=ESP_OK lux=156.7 AM2302=ESP_OK temp=27.9C hum=68.4%[0m
+[0;32mI (198403) sensor_check: RS485 RX 26 byte(s): @P,PA3_LOW=0,HIGH=120000[0m
+
+[0;32mI (199643) sensor_check: sample=98 PIR=0 BH1750=ESP_OK lux=156.7 AM2302=ESP_OK temp=27.9C hum=68.4%[0m
+[0;32mI (201673) sensor_check: sample=99 PIR=0 BH1750=ESP_OK lux=156.7 AM2302=ESP_OK temp=27.8C hum=68.5%[0m
+[0;32mI (203703) sensor_check: sample=100 PIR=0 BH1750=ESP_OK lux=156.7 AM2302=ESP_OK temp=27.8C hum=68.5%[0m
+[0;32mI (205733) sensor_check: sample=101 PIR=0 BH1750=ESP_OK lux=156.7 AM2302=ESP_OK temp=27.8C hum=68.4%[0m
+[0;32mI (207763) sensor_check: sample=102 PIR=0 BH1750=ESP_OK lux=156.7 AM2302=ESP_OK temp=27.8C hum=68.4%[0m
+[0;32mI (209793) sensor_check: sample=103 PIR=0 BH1750=ESP_OK lux=156.7 AM2302=ESP_OK temp=27.9C hum=68.3%[0m
+[0;32mI (211823) sensor_check: sample=104 PIR=0 BH1750=ESP_OK lux=156.7 AM2302=ESP_OK temp=27.8C hum=68.5%[0m
+[0;32mI (213853) sensor_check: sample=105 PIR=0 BH1750=ESP_OK lux=155.8 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (215883) sensor_check: sample=106 PIR=0 BH1750=ESP_OK lux=155.8 AM2302=ESP_OK temp=27.8C hum=68.4%[0m
+[0;32mI (217913) sensor_check: sample=107 PIR=0 BH1750=ESP_OK lux=155.8 AM2302=ESP_OK temp=27.8C hum=68.5%[0m
+[0;32mI (219943) sensor_check: sample=108 PIR=0 BH1750=ESP_OK lux=155.8 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (221973) sensor_check: sample=109 PIR=0 BH1750=ESP_OK lux=155.8 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (224003) sensor_check: sample=110 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.8C hum=68.5%[0m
+[0;32mI (226033) sensor_check: sample=111 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.9C hum=68.6%[0m
+[0;32mI (228063) sensor_check: sample=112 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.9C hum=68.6%[0m
+[0;32mI (230093) sensor_check: sample=113 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.9C hum=68.6%[0m
+[0;32mI (232123) sensor_check: sample=114 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.9C hum=68.7%[0m
+[0;32mI (234153) sensor_check: sample=115 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (235993) sensor_check: RS485 RX 24 byte(s): @A,TIMEOUT,LEN=0,DATA=[0m
+
+[0;32mI (236183) sensor_check: sample=116 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.9C hum=68.7%[0m
+[0;32mI (237043) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (237043) sensor_check: RS485 TX probe: @D,OK[0m
+
+[0;32mI (238183) sensor_check: sample=117 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.8C hum=68.7%[0m
+[0;32mI (240213) sensor_check: sample=118 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.8C hum=68.6%[0m
+[0;32mI (240513) sensor_check: RS485 RX 26 byte(s): @P,PA3_LOW=0,HIGH=120000[0m
+
+[0;32mI (242243) sensor_check: sample=119 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.8C hum=68.6%[0m
+[0;32mI (244273) sensor_check: sample=120 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.9C hum=68.6%[0m
+[0;32mI (246303) sensor_check: sample=121 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (248333) sensor_check: sample=122 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.8C hum=68.6%[0m
+[0;32mI (250363) sensor_check: sample=123 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.8C hum=68.7%[0m
+[0;32mI (252393) sensor_check: sample=124 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.8C hum=68.6%[0m
+[0;32mI (254423) sensor_check: sample=125 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.9C hum=68.7%[0m
+[0;32mI (256453) sensor_check: sample=126 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.8C hum=68.5%[0m
+[0;32mI (258483) sensor_check: sample=127 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.9C hum=68.6%[0m
+[0;32mI (260513) sensor_check: sample=128 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (262543) sensor_check: sample=129 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (264573) sensor_check: sample=130 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.9C hum=68.6%[0m
+[0;32mI (266603) sensor_check: sample=131 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (268633) sensor_check: sample=132 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.9C hum=68.6%[0m
+[0;32mI (270663) sensor_check: sample=133 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.8C hum=68.5%[0m
+[0;32mI (272693) sensor_check: sample=134 PIR=0 BH1750=ESP_OK lux=155.0 AM2302=ESP_OK temp=27.8C hum=68.6%[0m
+[0;32mI (274723) sensor_check: sample=135 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.8C hum=68.7%[0m
+[0;32mI (276753) sensor_check: sample=136 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.9C hum=68.6%[0m
+[0;32mI (278103) sensor_check: RS485 RX 24 byte(s): @A,TIMEOUT,LEN=0,DATA=[0m
+
+[0;32mI (278783) sensor_check: sample=137 PIR=0 BH1750=ESP_OK lux=153.3 AM2302=ESP_OK temp=27.9C hum=68.7%[0m
+[0;32mI (279083) sensor_check: RS485 RX 13 byte(s): @Q,ID=01*00[0m
+
+[0;32mI (279083) sensor_check: RS485 TX probe: @D,OK[0m
+
+[0;32mI (280783) sensor_check: sample=138 PIR=0 BH1750=ESP_OK lux=153.3 AM2302=ESP_OK temp=27.9C hum=68.6%[0m
+[0;32mI (282553) sensor_check: RS485 RX 26 byte(s): @P,PA3_LOW=0,HIGH=120000[0m
+
+[0;32mI (282813) sensor_check: sample=139 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.9C hum=68.6%[0m
+[0;32mI (284843) sensor_check: sample=140 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.9C hum=68.6%[0m
+[0;32mI (286873) sensor_check: sample=141 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.8C hum=68.4%[0m
+[0;32mI (288903) sensor_check: sample=142 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (290933) sensor_check: sample=143 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.9C hum=68.7%[0m
+[0;32mI (292963) sensor_check: sample=144 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.9C hum=68.7%[0m
+[0;32mI (294993) sensor_check: sample=145 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.8C hum=68.6%[0m
+[0;32mI (297023) sensor_check: sample=146 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.9C hum=68.7%[0m
+[0;32mI (299053) sensor_check: sample=147 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.9C hum=68.6%[0m
+[0;32mI (301083) sensor_check: sample=148 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.8C hum=68.5%[0m
+[0;32mI (303113) sensor_check: sample=149 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.9C hum=68.7%[0m
+[0;32mI (305143) sensor_check: sample=150 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.9C hum=68.7%[0m
+[0;32mI (307173) sensor_check: sample=151 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.9C hum=68.7%[0m
+[0;32mI (309203) sensor_check: sample=152 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.9C hum=68.6%[0m
+[0;32mI (311233) sensor_check: sample=153 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.9C hum=68.6%[0m
+[0;32mI (313263) sensor_check: sample=154 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.9C hum=68.6%[0m
+[0;32mI (315293) sensor_check: sample=155 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (317323) sensor_check: sample=156 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (319353) sensor_check: sample=157 PIR=0 BH1750=ESP_OK lux=154.2 AM2302=ESP_OK temp=27.9C hum=68.5%[0m
+[0;32mI (320143) sensor_check: RS485 RX 24 byte(s): @A,TIMEOUT,LEN=0,DATA=[0m
+

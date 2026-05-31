@@ -1,0 +1,128 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "ESP-IDF: set target esp32c6",
+      "type": "shell",
+      "command": "${workspaceFolder}/esp32-wroom-c6-workspace/tools/idf.sh",
+      "args": [
+        "set-target",
+        "esp32c6"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/esp32-wroom-c6-workspace"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "ESP-IDF: build",
+      "type": "shell",
+      "command": "${workspaceFolder}/esp32-wroom-c6-workspace/tools/idf.sh",
+      "args": [
+        "build"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/esp32-wroom-c6-workspace"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$gcc"
+    },
+    {
+      "label": "ESP-IDF: flash",
+      "type": "shell",
+      "command": "${workspaceFolder}/esp32-wroom-c6-workspace/tools/idf.sh",
+      "args": [
+        "-p",
+        "${input:serialPort}",
+        "flash"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/esp32-wroom-c6-workspace"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "ESP-IDF: monitor",
+      "type": "shell",
+      "command": "${workspaceFolder}/esp32-wroom-c6-workspace/tools/idf.sh",
+      "args": [
+        "-p",
+        "${input:serialPort}",
+        "monitor"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/esp32-wroom-c6-workspace"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "ESP-IDF: flash and monitor",
+      "type": "shell",
+      "command": "${workspaceFolder}/esp32-wroom-c6-workspace/tools/idf.sh",
+      "args": [
+        "-p",
+        "${input:serialPort}",
+        "flash",
+        "monitor"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/esp32-wroom-c6-workspace"
+      },
+      "dependsOn": [
+        "ESP-IDF: build"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "ESP-IDF: flash sensor check",
+      "type": "shell",
+      "command": "${workspaceFolder}/esp32-wroom-c6-workspace/tools/flash-monitor-sensors.sh",
+      "args": [
+        "-p",
+        "${input:serialPort}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/esp32-wroom-c6-workspace"
+      },
+      "dependsOn": [
+        "ESP-IDF: build"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "ESP-IDF: menuconfig",
+      "type": "shell",
+      "command": "${workspaceFolder}/esp32-wroom-c6-workspace/tools/idf.sh",
+      "args": [
+        "menuconfig"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/esp32-wroom-c6-workspace"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "ESP-IDF: fullclean",
+      "type": "shell",
+      "command": "${workspaceFolder}/esp32-wroom-c6-workspace/tools/idf.sh",
+      "args": [
+        "fullclean"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/esp32-wroom-c6-workspace"
+      },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "serialPort",
+      "type": "promptString",
+      "description": "ESP32-C6 serial port, for example /dev/ttyACM0 or /dev/ttyUSB0",
+      "default": "/dev/ttyACM0"
+    }
+  ]
+}

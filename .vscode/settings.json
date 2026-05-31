@@ -1,0 +1,25 @@
+{
+  "C_Cpp.intelliSenseEngine": "default",
+  "cmake.sourceDirectory": "${workspaceFolder}/esp32-wroom-c6-workspace",
+  "idf.buildPath": "${workspaceFolder}/esp32-wroom-c6-workspace/build",
+  "idf.espIdfPath": "/home/x/.espressif/v5.5.1/esp-idf",
+  "idf.toolsPath": "/home/x/.espressif/tools",
+  "idf.pythonBinPath": "/home/x/.espressif/tools/python/v5.5.1/venv/bin/python",
+  "idf.customExtraVars": {
+    "IDF_TARGET": "esp32c6"
+  },
+  "idf.flashType": "UART",
+  "idf.port": "/dev/ttyACM0",
+  "idf.currentSetup": "/home/x/.espressif/v5.5.1/esp-idf",
+  "clangd.path": "/home/x/.espressif/tools/esp-clang/esp-19.1.2_20250312/esp-clang/bin/clangd",
+  "clangd.arguments": [
+    "--background-index",
+    "--query-driver=/home/x/.espressif/tools/riscv32-esp-elf/esp-14.2.0_20241119/riscv32-esp-elf/bin/riscv32-esp-elf-gcc",
+    "--compile-commands-dir=${workspaceFolder}/esp32-wroom-c6-workspace/build"
+  ],
+  "files.associations": {
+    "freertos.h": "c",
+    "task.h": "c",
+    "esp_chip_info.h": "c"
+  }
+}

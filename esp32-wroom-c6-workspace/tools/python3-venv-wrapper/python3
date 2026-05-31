@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ "${1:-}" = "-m" ] && [ "${2:-}" = "venv" ]; then
+    shift 2
+    exec /usr/bin/python3 -m virtualenv "$@"
+fi
+
+exec /usr/bin/python3 "$@"

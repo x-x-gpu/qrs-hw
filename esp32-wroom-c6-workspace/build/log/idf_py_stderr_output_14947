@@ -1,0 +1,1 @@
+Command: cmake -G Ninja -DPYTHON_DEPS_CHECKED=1 -DPYTHON=/home/x/.espressif/tools/python/v5.5.1/venv/bin/python -DESP_PLATFORM=1 -DCCACHE_ENABLE=0 /home/x/qrs-hw/esp32-wroom-c6-workspace

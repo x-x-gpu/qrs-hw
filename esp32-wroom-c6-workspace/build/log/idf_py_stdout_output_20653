@@ -1,0 +1,18 @@
+Command: ninja size
+[0/1] cd /home/x/qrs-hw/esp32-wroom-c6-workspace/build && /home/x/.espressif/tools/cmake/3.30.2/bin/cmake -D "IDF_SIZE_TOOL=/home/x/.espressif/tools/python/v5.5.1/venv/bin/python;-m;esp_idf_size" -D MAP_FILE=/home/x/qrs-hw/esp32-wroom-c6-workspace/build/esp32c6_wroom1_pipeline.map -D OUTPUT_JSON= -P /home/x/.espressif/v5.5.1/esp-idf/tools/cmake/run_size_tool.cmake
+                           Memory Type Usage Summary                            
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Memory            ┃              ┃          ┃                ┃               ┃
+┃ Type/Section      ┃ Used [bytes] ┃ Used [%] ┃ Remain [bytes] ┃ Total [bytes] ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ Flash Code        │       126490 │          │                │               │
+│    .text          │        85234 │          │                │               │
+│    .rodata        │        41000 │          │                │               │
+│    .appdesc       │          256 │          │                │               │
+│ DIRAM             │        63524 │    14.05 │         388588 │        452112 │
+│    .text          │        53076 │    11.74 │                │               │
+│    .data          │         6496 │     1.44 │                │               │
+│    .bss           │         3952 │     0.87 │                │               │
+│ LP SRAM           │           24 │     0.15 │          16360 │         16384 │
+│    .rtc_reserved  │           24 │     0.15 │                │               │
+└───────────────────┴──────────────┴──────────┴────────────────┴───────────────┘

@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="760" viewBox="0 0 1180 760" role="img" aria-labelledby="title desc">
+  <title id="title">多 ESP32-C6 节点通过 RS485 接入战舰 V3 示意图</title>
+  <desc id="desc">多个 ESP32-C6 采集节点通过 RS485 A/B/GND 总线连接到战舰 V3 主站，或连接到 ESP32 网关后再转发给战舰 V3。</desc>
+  <defs>
+    <style>
+      .bg { fill: #f7f8fa; }
+      .box { fill: #ffffff; stroke: #24313a; stroke-width: 2; rx: 8; }
+      .node { fill: #ffffff; stroke: #0f766e; stroke-width: 2; rx: 8; }
+      .master { fill: #ffffff; stroke: #7c3aed; stroke-width: 2; rx: 8; }
+      .title { font: 700 22px "Segoe UI", "Microsoft YaHei", sans-serif; fill: #172026; }
+      .label { font: 16px "Segoe UI", "Microsoft YaHei", sans-serif; fill: #172026; }
+      .pin { font: 15px Consolas, monospace; fill: #172026; }
+      .note { font: 14px "Segoe UI", "Microsoft YaHei", sans-serif; fill: #52616b; }
+      .busA { stroke: #dc2626; stroke-width: 5; fill: none; }
+      .busB { stroke: #2563eb; stroke-width: 5; fill: none; }
+      .gnd { stroke: #374151; stroke-width: 4; fill: none; }
+      .drop { stroke: #64748b; stroke-width: 3; fill: none; stroke-dasharray: 6 5; }
+      .term { fill: none; stroke: #111827; stroke-width: 3; }
+      .alt { stroke: #b45309; stroke-width: 4; fill: none; stroke-dasharray: 9 7; }
+    </style>
+  </defs>
+  <rect class="bg" x="0" y="0" width="1180" height="760"/>
+  <text class="title" x="36" y="46">多 ESP32-C6 节点通过 RS485 接入战舰 V3</text>
+  <text class="note" x="36" y="72">默认方案 A：战舰 V3 做主站轮询；备选方案 B：ESP32 网关做 RS485 主站，再用 TTL UART 发给战舰 V3。</text>
+
+  <path class="busA" d="M110 220 H1040"/>
+  <path class="busB" d="M110 290 H1040"/>
+  <path class="gnd" d="M110 360 H1040"/>
+  <text class="pin" x="70" y="225">A</text>
+  <text class="pin" x="70" y="295">B</text>
+  <text class="pin" x="56" y="365">GND</text>
+
+  <path class="term" d="M125 220 v70"/>
+  <text class="note" x="92" y="195">120Ω</text>
+  <path class="term" d="M1025 220 v70"/>
+  <text class="note" x="996" y="195">120Ω</text>
+
+  <rect class="node" x="165" y="450" width="220" height="170"/>
+  <text class="title" x="208" y="482">节点 01</text>
+  <text class="label" x="188" y="512">ESP32-C6 + 三传感器</text>
+  <text class="pin" x="188" y="545">GPIO20 -> DI</text>
+  <text class="pin" x="188" y="575">GPIO21 <- RO</text>
+  <text class="pin" x="188" y="605">GPIO18 -> DE,/RE</text>
+  <path class="drop" d="M275 450 V220"/>
+  <path class="drop" d="M295 450 V290"/>
+  <path class="drop" d="M315 450 V360"/>
+
+  <rect class="node" x="480" y="450" width="220" height="170"/>
+  <text class="title" x="523" y="482">节点 02</text>
+  <text class="label" x="503" y="512">ESP32-C6 + 三传感器</text>
+  <text class="pin" x="503" y="545">GPIO20 -> DI</text>
+  <text class="pin" x="503" y="575">GPIO21 <- RO</text>
+  <text class="pin" x="503" y="605">GPIO18 -> DE,/RE</text>
+  <path class="drop" d="M590 450 V220"/>
+  <path class="drop" d="M610 450 V290"/>
+  <path class="drop" d="M630 450 V360"/>
+
+  <rect class="node" x="790" y="450" width="220" height="170"/>
+  <text class="title" x="833" y="482">节点 N</text>
+  <text class="label" x="813" y="512">ESP32-C6 + 三传感器</text>
+  <text class="pin" x="813" y="545">唯一 ID，默认接收</text>
+  <text class="pin" x="813" y="575">被轮询才发送</text>
+  <text class="pin" x="813" y="605">不要主动抢发</text>
+  <path class="drop" d="M900 450 V220"/>
+  <path class="drop" d="M920 450 V290"/>
+  <path class="drop" d="M940 450 V360"/>
+
+  <rect class="master" x="420" y="105" width="335" height="105"/>
+  <text class="title" x="470" y="138">方案 A：战舰 V3 主站</text>
+  <text class="pin" x="448" y="170">USART_TX -> RS485 DI, USART_RX <- RO</text>
+  <text class="pin" x="448" y="195">GPIO -> DE,/RE；主站侧放偏置电阻</text>
+  <path class="drop" d="M570 210 V220"/>
+  <path class="drop" d="M590 210 V290"/>
+  <path class="drop" d="M610 210 V360"/>
+
+  <rect class="box" x="800" y="95" width="270" height="115"/>
+  <text class="title" x="838" y="128">方案 B：ESP32 网关</text>
+  <text class="pin" x="826" y="160">网关 RS485 轮询节点</text>
+  <text class="pin" x="826" y="188">TTL UART -> 战舰 V3</text>
+  <path class="alt" d="M800 155 C735 145 725 155 755 170"/>
+
+  <text class="note" x="110" y="410">主干线只在两端终端；中间节点短支线接入。A/B 若无数据可对调测试。</text>
+  <text class="note" x="110" y="660">实验建议先接两个节点：01、02。主站轮询 01 成功后再接 02，最后再扩到 N 个节点。</text>
+</svg>
