@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>智能网关 MILP 算法核心设计报告</title>
+<style>
+:root { color-scheme: light; --main:#0f4c5c; --accent:#d17a22; --text:#1f2933; --muted:#5b6773; --line:#d7dee6; --bg:#f6f8fa; --soft:#fbfcfd; --note:#fff7ed; }
+* { box-sizing:border-box; }
+body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans CJK SC","Microsoft YaHei",Arial,sans-serif; color:var(--text); background:white; line-height:1.72; }
+main { max-width:980px; margin:0 auto; padding:42px 28px 64px; }
+h1 { color:var(--main); border-bottom:4px solid var(--main); padding-bottom:14px; font-size:2rem; line-height:1.25; margin:0 0 10px; }
+h2 { color:var(--main); border-left:6px solid var(--accent); padding-left:12px; margin-top:34px; }
+h3 { color:#244653; margin-top:26px; }
+p { margin:0.75em 0; }
+.meta { color:var(--muted); margin:0 0 20px; }
+.summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:18px 0 24px; }
+.card { border:1px solid var(--line); background:#f8fbff; border-radius:10px; padding:13px 15px; }
+.card strong { color:var(--main); display:block; margin-bottom:3px; }
+.flow { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 22px; }
+.flow span { background:#ecfeff; border:1px solid #a5f3fc; border-radius:999px; padding:6px 10px; font-size:0.95rem; }
+.toc { background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:15px 18px; margin:18px 0 28px; }
+.toc h2 { border:0; padding:0; margin:0 0 8px; font-size:1.1rem; }
+.toc ol { margin:0; columns:2; }
+table { width:100%; border-collapse:collapse; margin:16px 0 22px; font-size:0.96rem; }
+th, td { border:1px solid var(--line); padding:8px 10px; vertical-align:top; }
+th { background:#eaf3f6; color:#123d4a; font-weight:700; }
+tr:nth-child(even) td { background:var(--soft); }
+code { background:#eef2f5; padding:0.12em 0.35em; border-radius:4px; font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace; font-size:0.92em; }
+pre { background:#111827; color:#e5e7eb; padding:14px 16px; border-radius:8px; overflow:auto; line-height:1.55; }
+pre code { background:transparent; padding:0; color:inherit; }
+ul, ol { padding-left:1.45em; }
+a { color:#0b6b88; text-decoration:none; }
+a:hover { text-decoration:underline; }
+blockquote { margin:16px 0; padding:10px 16px; border-left:4px solid #8aa4c2; background:#f8fbff; color:#263238; }
+.refs { background:var(--note); border:1px solid #fed7aa; border-radius:10px; padding:14px 16px; margin-top:34px; }
+.refs h2 { margin-top:0; border:0; padding:0; color:#9a3412; }
+.footer { margin-top:34px; color:var(--muted); font-size:0.92rem; border-top:1px solid var(--line); padding-top:12px; }
+@media print { main { max-width:none; padding:20px; } a { color:inherit; } pre { white-space:pre-wrap; } .toc ol{columns:1;} }
+</style>
+</head>
+<body>
+<main>
+<h1>智能网关 MILP 算法核心设计报告</h1>
+<p class="meta">日期：2026-06-18 ｜ QRS 智能网关 / STM32 本地 MILP 可视化部分</p>
+<div class="summary"><div class="card"><strong>算法核心</strong>0-1 决策变量、功率约束和线性收益</div><div class="card"><strong>代码入口</strong>gateway_milp.py、qrs_frames.py、gateway_server.py</div><div class="card"><strong>输出</strong>生成 STM32 可解析的 @C 控制帧</div></div>
+<div class="flow"><span>ESP32 采集</span><span>RS485 汇总</span><span>PC MILP 求解</span><span>USART1 返回</span><span>LCD / ACK 验证</span></div>
+<div class="toc"><h2>目录</h2><ol><li><a href="#1-报告范围">1. 报告范围</a></li><li><a href="#2-数据流与代码位置">2. 数据流与代码位置</a></li><li><a href="#3-输入变量设计">3. 输入变量设计</a></li><li><a href="#4-决策变量设计">4. 决策变量设计</a></li><li><a href="#5-目标函数">5. 目标函数</a></li><li><a href="#6-约束设计">6. 约束设计</a></li><li><a href="#7-输出控制帧">7. 输出控制帧</a></li><li><a href="#8-测试方法">8. 测试方法</a></li><li><a href="#9-算法调试记录">9. 算法调试记录</a></li><li><a href="#10-本阶段小结">10. 本阶段小结</a></li><li><a href="#11-参考资料说明">11. 参考资料说明</a></li></ol></div>
+
+<p>日期：2026-06-18</p>
+<h2 id="1-报告范围">1. 报告范围</h2>
+<p>本报告说明 PC 端智能网关求解器的建模思路、输入输出、目标函数、约束设计和测试方式。它对应仓库中的 <code>code/pc_milp_solver/gateway_milp.py</code> 与 <code>code/protocol/qrs_frames.py</code>。硬件侧提供传感器数据，算法侧把这些数据转化为 LED、蜂鸣器、风扇代理变量和空调代理变量的控制策略，最终生成 STM32 能够解析的 <code>@C</code> 控制帧。</p>
+<p>本次课程题目要求体现智能网关和优化决策，因此我没有只写一个固定阈值 if-else，而是把问题组织成 0-1 决策变量、线性目标函数和功率约束的形式。由于演示规模较小，当前代码用枚举方式遍历全部 0/1 组合；变量增加后可以平滑迁移到 PuLP、OR-Tools 或其他 MILP 求解器。</p>
+<h2 id="2-数据流与代码位置">2. 数据流与代码位置</h2>
+<pre><code>ESP32/STM32 @D 数据帧
+  -&gt; qrs_frames.py 解析字段
+  -&gt; gateway_server.py 更新状态
+  -&gt; gateway_milp.py 求解 0-1 控制策略
+  -&gt; qrs_frames.py / gateway_milp.py 生成 @C 控制帧
+  -&gt; USART1 返回 STM32</code></pre>
+<table><thead><tr>
+<th>文件</th>
+<th>作用</th>
+<th>关键内容</th>
+</tr></thead><tbody>
+<tr><td><code>code/pc_milp_solver/gateway_milp.py</code></td><td>MILP 风格求解核心</td><td>设备定义、收益函数、功率约束、枚举求解、控制帧生成</td></tr>
+<tr><td><code>code/pc_milp_solver/gateway_server.py</code></td><td>本地网页后端</td><td>HTTP 接口、状态缓存、串口自动转发、ACK 读取</td></tr>
+<tr><td><code>code/protocol/qrs_frames.py</code></td><td>协议工具</td><td><code>@D</code> 解析、字段类型转换、<code>@C</code> 编码</td></tr>
+<tr><td><code>frontend/index.html</code>、<code>frontend/app.js</code></td><td>浏览器可视化</td><td>参数编辑、求解按钮、结果展示</td></tr>
+<tr><td><code>data/</code></td><td>样例与最近状态</td><td>便于演示和复现</td></tr>
+</tbody></table>
+<h2 id="3-输入变量设计">3. 输入变量设计</h2>
+<p>算法输入分为硬件采集量和用户设置量。硬件采集量来自 ESP32 节点经 STM32 汇总后的 <code>@D</code> 帧；用户设置量来自网页控制台，用于体现不同用电策略下的调度变化。</p>
+<table><thead><tr>
+<th>变量</th>
+<th>来源</th>
+<th>类型</th>
+<th>建模含义</th>
+</tr></thead><tbody>
+<tr><td><code>PIR</code></td><td>HC-SR501</td><td>0/1</td><td>是否有人活动，影响照明和告警优先级</td></tr>
+<tr><td><code>LUX</code></td><td>BH1750</td><td>连续量</td><td>光照强度，低光照时提升 LED 收益</td></tr>
+<tr><td><code>T</code></td><td>AM2302/DHT22</td><td>连续量</td><td>温度，超过目标温度时提升风扇/空调收益</td></tr>
+<tr><td><code>H</code></td><td>AM2302/DHT22</td><td>连续量</td><td>湿度，作为环境状态展示和扩展约束</td></tr>
+<tr><td><code>BH</code></td><td>节点状态</td><td>枚举文本</td><td>判断光照传感器是否可靠</td></tr>
+<tr><td><code>DHT</code></td><td>节点状态</td><td>枚举文本</td><td>判断温湿度传感器是否可靠</td></tr>
+<tr><td><code>price</code></td><td>网页设置</td><td>连续量</td><td>电价，抑制高功耗设备</td></tr>
+<tr><td><code>power_limit_w</code></td><td>网页设置</td><td>整数</td><td>总功率上限</td></tr>
+<tr><td><code>target_temp_c</code></td><td>网页设置</td><td>连续量</td><td>舒适温度目标</td></tr>
+</tbody></table>
+<p>网页端可以直接修改这些输入，便于答辩时展示同一硬件数据在不同电价、功率上限和目标温度下的策略变化。</p>
+<h2 id="4-决策变量设计">4. 决策变量设计</h2>
+<p>当前演示规模下定义四个 0-1 决策变量：</p>
+<table><thead><tr>
+<th>变量</th>
+<th>设备含义</th>
+<th>功率估计</th>
+<th>说明</th>
+</tr></thead><tbody>
+<tr><td><code>LED</code></td><td>照明控制</td><td>8 W</td><td>与实际 STM32 LED/LCD 状态绑定，低光照有人时优先打开</td></tr>
+<tr><td><code>BUZZER</code></td><td>告警蜂鸣器</td><td>2 W</td><td>用于异常、传感器故障或演示告警</td></tr>
+<tr><td><code>FAN_PROXY</code></td><td>风扇代理变量</td><td>120 W</td><td>当前 LCD 展示，代表后续可接继电器负载</td></tr>
+<tr><td><code>AC_PROXY</code></td><td>空调代理变量</td><td>1500 W</td><td>高功率负载代理，主要体现功率约束与电价影响</td></tr>
+</tbody></table>
+<p>这里的 <code>FAN_PROXY</code> 和 <code>AC_PROXY</code> 暂时不是实际接线的风扇和空调，而是楼宇设备代理变量。这样既能满足智能网关优化调度的题目要求，又不会在课程现场引入高压负载风险。</p>
+<h2 id="5-目标函数">5. 目标函数</h2>
+<p>求解目标可以概括为：在总功率不超过上限的前提下，最大化舒适度与安全收益，减去能源成本。</p>
+<pre><code>maximize  comfort_reward(x, sensor_state) - energy_cost(x, price)
+subject to sum(power_i * x_i) &lt;= power_limit_w
+           x_i ∈ {0, 1}</code></pre>
+<p>代码中将每个设备定义为 <code>Device(key, command_name, power_w, base_reward)</code>。求解时对四个二进制变量枚举全部组合，先过滤超过功率上限的组合，再计算收益：</p>
+<pre><code>total_power = Σ power_i * x_i
+cost        = total_power / 1000 * price
+objective   = reward - cost</code></pre>
+<p>收益项根据传感器状态动态调整。例如，光照低且有人时，LED 组合会得到更高收益；温度高于目标温度时，风扇和空调代理变量的收益提高；传感器异常或需要提示时，蜂鸣器变量得到告警收益。这样网页修改输入后，目标函数和输出帧会同步变化。</p>
+<h2 id="6-约束设计">6. 约束设计</h2>
+<p>当前实现中的硬约束主要是功率限制，软逻辑通过收益函数体现。</p>
+<table><thead><tr>
+<th>约束/规则</th>
+<th>类型</th>
+<th>作用</th>
+</tr></thead><tbody>
+<tr><td><code>sum(power_i * x_i) &lt;= power_limit_w</code></td><td>硬约束</td><td>防止同时开启高功耗设备导致超限</td></tr>
+<tr><td><code>x_i ∈ {0,1}</code></td><td>硬约束</td><td>所有设备开关为二进制状态</td></tr>
+<tr><td>低光照且有人提高 LED 收益</td><td>软规则</td><td>让照明策略符合直觉</td></tr>
+<tr><td>温度越高越提高 FAN/AC 收益</td><td>软规则</td><td>体现舒适温控目标</td></tr>
+<tr><td>电价越高成本越大</td><td>软规则</td><td>让高功耗动作受用电成本抑制</td></tr>
+<tr><td>传感器异常触发告警收益</td><td>软规则</td><td>保留安全提示能力</td></tr>
+</tbody></table>
+<p>选择这种设计的原因是演示时更容易解释：硬约束保证安全边界，目标函数体现偏好，网页参数改变则改变最优解。</p>
+<h2 id="7-输出控制帧">7. 输出控制帧</h2>
+<p>求解结果会被编码为 STM32 端可以解析的 ASCII 文本帧：</p>
+<pre><code>@C,LED=1,BUZZER=0,FAN=1,AC=1*00</code></pre>
+<p>字段含义如下：</p>
+<table><thead><tr>
+<th>字段</th>
+<th>取值</th>
+<th>STM32 侧行为</th>
+</tr></thead><tbody>
+<tr><td><code>LED</code></td><td>0/1</td><td>更新 LCD 显示，并尝试驱动板载 LED0</td></tr>
+<tr><td><code>BUZZER</code></td><td>0/1</td><td>更新 LCD 显示，并尝试驱动蜂鸣器</td></tr>
+<tr><td><code>FAN</code></td><td>0/1</td><td>更新 LCD 上的风扇代理状态</td></tr>
+<tr><td><code>AC</code></td><td>0/1</td><td>更新 LCD 上的空调代理状态</td></tr>
+<tr><td><code>*00</code></td><td>文本校验占位</td><td>当前演示保留格式，后续可替换为 XOR/CRC</td></tr>
+</tbody></table>
+<p><code>@C</code> 帧保持为纯文本，是为了方便 XCOM、Python 后端和 STM32 裸机程序同时调试。实际产品中可以改成二进制帧或带 CRC 的文本帧。</p>
+<h2 id="8-测试方法">8. 测试方法</h2>
+<p>命令行测试用于确认算法和协议在没有硬件时也能独立运行：</p>
+<pre><code>cd .\code\pc_milp_solver
+python .\gateway_milp.py
+python ..\protocol\qrs_frames.py --frame &quot;@D,ID=01,PIR=1,LUX=118.4,T=29.1,H=63.5,BH=ESP_OK,DHT=ESP_OK&quot;</code></pre>
+<p>网页测试用于确认本地控制台可以展示和修改状态：</p>
+<pre><code>python .\gateway_server.py</code></pre>
+<p>浏览器访问：</p>
+<pre><code>http://127.0.0.1:8765</code></pre>
+<p>如果要自动返回 STM32，可以运行：</p>
+<pre><code>python .\gateway_server.py --serial-port COM3</code></pre>
+<p>此时网页点击求解后，后端会把 <code>@C</code> 帧写入串口，并尝试读取 <code>ACK @C UPD=n</code>。</p>
+<h2 id="9-算法调试记录">9. 算法调试记录</h2>
+<p>开发过程中我刻意保留了两层可调试入口：命令行入口用于验证模型和协议，网页入口用于展示人机交互。这样可以避免一出问题就分不清是算法错误、前端错误还是串口错误。</p>
+<table><thead><tr>
+<th>问题</th>
+<th>检查方式</th>
+<th>结论</th>
+</tr></thead><tbody>
+<tr><td>网页数值不变</td><td>先运行 <code>gateway_milp.py</code>，再看浏览器接口</td><td>若命令行正常，问题多半在前端状态刷新</td></tr>
+<tr><td><code>@D</code> 解析失败</td><td>用 <code>qrs_frames.py --frame</code> 单独测试</td><td>字段名或帧头不匹配会直接报错</td></tr>
+<tr><td><code>NO REPLY</code> 被误解</td><td>对比 LCD <code>MILP CTRL</code> 的 <code>UPD</code></td><td><code>NO REPLY</code> 是 RS485 节点回包问题，不代表 MILP 控制帧失败</td></tr>
+<tr><td>自动串口失败</td><td>看 Python <code>[serial]</code> 日志</td><td>COM 口被占用或未安装 <code>pyserial</code> 会在终端显示</td></tr>
+</tbody></table>
+<h2 id="10-本阶段小结">10. 本阶段小结</h2>
+<p>本阶段完成了从传感器状态到控制策略的算法闭环。它不是单纯的网页模拟，也不是只在 STM32 上显示固定字符串，而是把硬件数据、网页参数、优化求解和控制帧统一到了同一套协议中。后续接口对齐阶段的重点，就是让 <code>@C</code> 帧稳定进入 STM32，并在 LCD 和串口日志中可见。</p>
+<h2 id="11-参考资料说明">11. 参考资料说明</h2>
+<p>本目录 <code>references/</code> 保存 BH1750、AM2302、RS485 和 ESP-IDF UART 等资料。它们主要用于支撑传感器字段含义、串口通信方式和后续约束扩展。报告 HTML 与 Markdown 保持在同级目录，便于老师直接打开阅读。</p>
+<div class="refs"><h2>参考资料</h2><ul><li><a href="references/aosong-am2302-technical-manual.pdf">aosong-am2302-technical-manual.pdf</a></li><li><a href="references/esp-idf-esp32c6-uart-driver.html">esp-idf-esp32c6-uart-driver.html</a></li><li><a href="references/rohm-bh1750fvi-datasheet.pdf">rohm-bh1750fvi-datasheet.pdf</a></li><li><a href="references/ti-rs485-design-guide-slla272d.pdf">ti-rs485-design-guide-slla272d.pdf</a></li></ul></div>
+<p class="footer">本 HTML 由同级 Markdown 报告转换生成，正文与参考资料分离，便于课程检查和离线阅读。</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,116 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart Gateway Control Console</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <h1>智能网关控制台</h1>
+        <p>传感器输入进入 PC 端 MILP 求解器，求解结果生成控制帧返回 STM32/ESP32 执行端。</p>
+      </div>
+      <div class="toolbar">
+        <label class="auto-refresh-label">
+          <input type="checkbox" id="autoRefresh">
+          <span>Auto-refresh 5s</span>
+        </label>
+        <button id="resetBtn" type="button">重置样例</button>
+        <button id="solveBtn" type="button" class="primary">求解并生成控制帧</button>
+      </div>
+    </header>
+
+    <section class="loop-strip" aria-label="closed loop">
+      <div><strong>1</strong><span>ESP32 采集</span></div>
+      <div><strong>2</strong><span>STM32 汇总</span></div>
+      <div><strong>3</strong><span>PC MILP 求解</span></div>
+      <div><strong>4</strong><span>返回控制帧</span></div>
+    </section>
+
+    <section class="status-grid" aria-label="summary">
+      <article>
+        <span>平均温度</span>
+        <strong id="avgTemp">--</strong>
+      </article>
+      <article>
+        <span>平均光照</span>
+        <strong id="avgLux">--</strong>
+      </article>
+      <article>
+        <span>当前功耗</span>
+        <strong id="usedPower">--</strong>
+      </article>
+      <article>
+        <span>目标函数</span>
+        <strong id="objective">--</strong>
+      </article>
+    </section>
+
+    <section class="trend-section">
+      <h2>传感器趋势</h2>
+      <canvas id="trendChart" width="1160" height="160"></canvas>
+    </section>
+
+    <section class="content-grid">
+      <section class="panel">
+        <h2>全局约束</h2>
+        <div class="form-grid">
+          <label>
+            电价 元/kWh
+            <input id="price" type="number" min="0" step="0.1">
+          </label>
+          <label>
+            功率上限 W
+            <input id="powerLimit" type="number" min="0" step="10">
+          </label>
+          <label>
+            目标温度 °C
+            <input id="targetTemp" type="number" step="0.5">
+          </label>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>硬件帧输入</h2>
+        <textarea id="rawFrame" rows="4" spellcheck="false">@D,ID=01,PIR=1,LUX=118.4,T=29.1,H=63.5,BH=ESP_OK,DHT=ESP_OK</textarea>
+        <button id="applyFrameBtn" type="button">解析 @D 帧并求解</button>
+      </section>
+
+      <section class="panel wide">
+        <h2>节点状态</h2>
+        <div id="nodeForms" class="node-editor"></div>
+      </section>
+
+      <section class="panel">
+        <h2>控制结果</h2>
+        <div id="commands" class="command-list"></div>
+      </section>
+
+      <section class="panel">
+        <h2>返回帧</h2>
+        <div class="frame-box">
+          <span>PC -> STM32/ESP32</span>
+          <code id="policyFrame">--</code>
+        </div>
+        <p class="hint">LED 和 BUZZER 可映射到现有执行端；FAN/AC 当前作为楼宇负载代理变量。</p>
+      </section>
+
+      <section class="panel wide">
+        <h2>模型与求解依据</h2>
+        <div id="modelInfo" class="model-info"></div>
+        <ul id="reasons" class="reason-list"></ul>
+      </section>
+    </section>
+
+    <section class="panel wide" id="solveHistoryPanel">
+      <h2>求解历史</h2>
+      <div id="solveHistory" class="solve-history"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

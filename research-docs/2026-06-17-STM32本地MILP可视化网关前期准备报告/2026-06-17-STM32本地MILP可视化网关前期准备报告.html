@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STM32 本地 MILP 可视化网关前期准备报告</title>
+<style>
+:root { color-scheme: light; --main:#0f4c5c; --accent:#d17a22; --text:#1f2933; --muted:#5b6773; --line:#d7dee6; --bg:#f6f8fa; --soft:#fbfcfd; --note:#fff7ed; }
+* { box-sizing:border-box; }
+body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans CJK SC","Microsoft YaHei",Arial,sans-serif; color:var(--text); background:white; line-height:1.72; }
+main { max-width:980px; margin:0 auto; padding:42px 28px 64px; }
+h1 { color:var(--main); border-bottom:4px solid var(--main); padding-bottom:14px; font-size:2rem; line-height:1.25; margin:0 0 10px; }
+h2 { color:var(--main); border-left:6px solid var(--accent); padding-left:12px; margin-top:34px; }
+h3 { color:#244653; margin-top:26px; }
+p { margin:0.75em 0; }
+.meta { color:var(--muted); margin:0 0 20px; }
+.summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:18px 0 24px; }
+.card { border:1px solid var(--line); background:#f8fbff; border-radius:10px; padding:13px 15px; }
+.card strong { color:var(--main); display:block; margin-bottom:3px; }
+.flow { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 22px; }
+.flow span { background:#ecfeff; border:1px solid #a5f3fc; border-radius:999px; padding:6px 10px; font-size:0.95rem; }
+.toc { background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:15px 18px; margin:18px 0 28px; }
+.toc h2 { border:0; padding:0; margin:0 0 8px; font-size:1.1rem; }
+.toc ol { margin:0; columns:2; }
+table { width:100%; border-collapse:collapse; margin:16px 0 22px; font-size:0.96rem; }
+th, td { border:1px solid var(--line); padding:8px 10px; vertical-align:top; }
+th { background:#eaf3f6; color:#123d4a; font-weight:700; }
+tr:nth-child(even) td { background:var(--soft); }
+code { background:#eef2f5; padding:0.12em 0.35em; border-radius:4px; font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace; font-size:0.92em; }
+pre { background:#111827; color:#e5e7eb; padding:14px 16px; border-radius:8px; overflow:auto; line-height:1.55; }
+pre code { background:transparent; padding:0; color:inherit; }
+ul, ol { padding-left:1.45em; }
+a { color:#0b6b88; text-decoration:none; }
+a:hover { text-decoration:underline; }
+blockquote { margin:16px 0; padding:10px 16px; border-left:4px solid #8aa4c2; background:#f8fbff; color:#263238; }
+.refs { background:var(--note); border:1px solid #fed7aa; border-radius:10px; padding:14px 16px; margin-top:34px; }
+.refs h2 { margin-top:0; border:0; padding:0; color:#9a3412; }
+.footer { margin-top:34px; color:var(--muted); font-size:0.92rem; border-top:1px solid var(--line); padding-top:12px; }
+@media print { main { max-width:none; padding:20px; } a { color:inherit; } pre { white-space:pre-wrap; } .toc ol{columns:1;} }
+</style>
+</head>
+<body>
+<main>
+<h1>STM32 本地 MILP 可视化网关前期准备报告</h1>
+<p class="meta">日期：2026-06-17 ｜ QRS 智能网关 / STM32 本地 MILP 可视化部分</p>
+<div class="summary"><div class="card"><strong>阶段定位</strong>整合目录、工具链和演示前置条件</div><div class="card"><strong>关键风险</strong>区分 SWD/JTAG 与 USART，避免串口误用</div><div class="card"><strong>产出</strong>独立 MILP 网关副本与四份拆分报告</div></div>
+<div class="flow"><span>ESP32 采集</span><span>RS485 汇总</span><span>PC MILP 求解</span><span>USART1 返回</span><span>LCD / ACK 验证</span></div>
+<div class="toc"><h2>目录</h2><ol><li><a href="#1-报告范围">1. 报告范围</a></li><li><a href="#2-项目定位与分工边界">2. 项目定位与分工边界</a></li><li><a href="#3-仓库整合原则">3. 仓库整合原则</a></li><li><a href="#4-环境与工具检查">4. 环境与工具检查</a></li><li><a href="#5-串口与烧录口区分">5. 串口与烧录口区分</a></li><li><a href="#6-前期风险清单">6. 前期风险清单</a></li><li><a href="#7-本阶段产出">7. 本阶段产出</a></li><li><a href="#8-参考资料说明">8. 参考资料说明</a></li></ol></div>
+
+<p>日期：2026-06-17</p>
+<h2 id="1-报告范围">1. 报告范围</h2>
+<p>本报告整理我负责的 STM32 本地 MILP 可视化网关在正式开发前的准备过程。队友已经完成 ESP32-C6 多传感器采集节点、RS485 总线连接和战舰 V3 主站轮询显示，因此本阶段的重点不是重新做一套硬件采集，而是在不破坏原有链路的前提下，把 PC 端求解、网页可视化、串口控制帧返回和 STM32 LCD 状态显示接入到同一个仓库中。</p>
+<p>本阶段主要解决三个问题：第一，确认课程题目中“智能网关、混合整数规划、可视化与硬件控制”的要求如何落到当前硬件；第二，梳理 <code>qrs-hw</code> 与我原先 <code>stm32_localhost_MILP</code> 目录之间的关系；第三，提前排查烧录口、普通串口、COM 口占用等容易在演示现场踩坑的问题。</p>
+<h2 id="2-项目定位与分工边界">2. 项目定位与分工边界</h2>
+<p>整体系统采用“硬件采集 + PC 求解 + STM32 反馈”的闭环结构。前期准备时我没有直接覆盖队友已经跑通的 <code>stm32-warship-v3-rs485-test/</code>，而是把 MILP 网关作为一个独立副本加入仓库，这样可以保留原始 RS485 主站工程作为对照，也方便老师检查两部分工作的边界。</p>
+<table><thead><tr>
+<th>模块</th>
+<th>负责人侧重点</th>
+<th>目录</th>
+<th>本阶段处理方式</th>
+</tr></thead><tbody>
+<tr><td>ESP32-C6 采集节点</td><td>多传感器采样、RS485 从站应答</td><td><code>esp32-wroom-c6-workspace/</code></td><td>保持原有结构，不覆盖</td></tr>
+<tr><td>STM32 RS485 主站</td><td>轮询 ESP32、LCD 显示节点数据</td><td><code>stm32-warship-v3-rs485-test/</code></td><td>作为硬件链路基线</td></tr>
+<tr><td>PC MILP 求解</td><td>建模、枚举求解、控制帧生成</td><td><code>code/pc_milp_solver/</code></td><td>从我的目录整合进入仓库</td></tr>
+<tr><td>协议工具</td><td><code>@D</code> 解析、<code>@C</code> 编码</td><td><code>code/protocol/</code></td><td>作为 PC 与 STM32 的中间层</td></tr>
+<tr><td>网页可视化</td><td>本地控制台、输入修改、求解结果展示</td><td><code>frontend/</code></td><td>作为答辩演示入口</td></tr>
+<tr><td>STM32 MILP 网关</td><td>USART1 接收控制帧、LCD 显示策略</td><td><code>stm32-warship-v3-milp-gateway/</code></td><td>新增独立工程副本</td></tr>
+<tr><td>证据材料</td><td>截图、录屏、串口日志</td><td><code>assets/screenshots/</code></td><td>作为报告与答辩证据</td></tr>
+</tbody></table>
+<p>从系统功能上看，队友部分解决“环境数据从哪里来、如何可靠到达 STM32”的问题；我这部分解决“数据到达后如何优化决策、如何可视化、如何把决策返回硬件”的问题。这样分工后，两部分不是并列孤立的 demo，而是可以串成完整的智能网关闭环。</p>
+<h2 id="3-仓库整合原则">3. 仓库整合原则</h2>
+<p>整合时采用“并列补充、引用对齐、保留基线”的原则。具体做法如下：</p>
+<ol>
+<li><code>assets/</code>、<code>code/</code>、<code>data/</code>、<code>frontend/</code> 和 <code>stm32-warship-v3-milp-gateway/</code> 直接放入 <code>qrs-hw</code> 根目录，避免散落在原来的个人目录中。</li>
+<li><code>stm32-warship-v3-rs485-test/</code> 不做覆盖，确保队友的 RS485 主站固件仍然能独立编译和演示。</li>
+<li><code>stm32-warship-v3-milp-gateway/</code> 从 RS485 主站工程派生，保留 LCD、FSMC、USART3 轮询等基础能力，只额外增加 USART1 控制帧入口。</li>
+<li><code>research-docs/</code> 按日期拆成前期准备、算法设计、接口对齐、演示调试四份报告，避免把所有过程压成一篇流水账。</li>
+<li>每个报告目录下同级保存 Markdown 与 HTML，<code>references/</code> 只放参考资料、数据手册、网页快照或工程配置，不再把报告 HTML 放进 <code>references/</code>。</li>
+</ol>
+<p>这种排布与队友已有报告保持一致：报告正文是老师直接打开阅读的入口，参考资料则作为证据和技术来源放在子目录中。</p>
+<h2 id="4-环境与工具检查">4. 环境与工具检查</h2>
+<p>PC 侧尽量使用 Python 标准库完成本地 HTTP 服务和求解演示，降低现场安装依赖失败的概率。只有自动串口转发需要 <code>pyserial</code>，如果现场来不及配置，也可以先用网页生成控制帧，再用 XCOM 或其他串口助手手动发送。</p>
+<pre><code>python --version
+cd .\code\pc_milp_solver
+python .\gateway_milp.py
+python .\gateway_server.py</code></pre>
+<p>STM32 侧继续使用已有工具链：</p>
+<pre><code>arm-none-eabi-gcc --version
+openocd --version
+cd .\stm32-warship-v3-milp-gateway
+make
+make flash</code></pre>
+<p>前期检查中确认 <code>make</code> 能生成 <code>build/warship_v3_milp_gateway.elf</code>，<code>make flash</code> 通过 OpenOCD 和 ST-Link 下载。曾经出现过 <code>OpenOCD open failed</code>，后来排查发现不是 ELF 文件错误，而是 ST-Link 连接、驱动枚举或板卡供电状态导致 OpenOCD 无法打开调试器。重新插拔并确认供电后可以正常烧录。</p>
+<h2 id="5-串口与烧录口区分">5. 串口与烧录口区分</h2>
+<p>本阶段最重要的硬件认知是：SWD/JTAG 口和 USART 串口不是同一种通道。ST-Link/SWD 负责下载、复位和调试芯片；PC 端要向程序发送普通文本帧，必须连接到 STM32 程序实际初始化的 USART 通道。</p>
+<table><thead><tr>
+<th>通道</th>
+<th>作用</th>
+<th>是否能接收 <code>@C</code> 控制帧</th>
+<th>调试现象</th>
+</tr></thead><tbody>
+<tr><td>ST-Link / SWD / JTAG</td><td>烧录固件、调试下载</td><td>不能</td><td><code>make flash</code> 使用它，但 XCOM 发帧无效</td></tr>
+<tr><td>USART1 / CH340 或 USB-TTL</td><td>PC 到 STM32 控制帧</td><td>可以</td><td>115200 8N1，收到后返回 ACK</td></tr>
+<tr><td>USART3 / RS485</td><td>STM32 与 ESP32 节点轮询</td><td>不作为 PC 控制入口</td><td>用于 <code>@Q</code>、<code>@D</code> 硬件链路</td></tr>
+</tbody></table>
+<p>我一开始把 USB 线接到 SWD/JTAG 口后，在 XCOM 中发送 <code>@C</code> 帧没有响应。后来通过 LCD 的 <code>U1 RX</code> 计数和串口 READY 文本确认，必须接到 USART1 对应的 USB 转串口通道，STM32 程序才会收到 PC 发来的普通串口数据。</p>
+<h2 id="6-前期风险清单">6. 前期风险清单</h2>
+<table><thead><tr>
+<th>风险</th>
+<th>表现</th>
+<th>预处理方法</th>
+</tr></thead><tbody>
+<tr><td>COM 口被占用</td><td>Python 报 <code>PermissionError(13, &#x27;拒绝访问&#x27;)</code></td><td>关闭 XCOM、PuTTY、Arduino Serial Monitor，由一个程序独占串口</td></tr>
+<tr><td>发送到错误接口</td><td>XCOM 发送后 LCD 不变，<code>U1 RX</code> 不增加</td><td>确认连接 USART1，而不是 ST-Link/SWD</td></tr>
+<tr><td>波特率不一致</td><td>收到乱码或无 ACK</td><td>USART1 使用 115200 8N1，RS485 链路按队友工程配置</td></tr>
+<tr><td>编译警告变错误</td><td><code>-Werror</code> 下 unused-variable 导致构建失败</td><td>删除未使用变量或确保变量真正参与逻辑</td></tr>
+<tr><td>烧录器未打开</td><td>OpenOCD 输出 <code>open failed</code></td><td>检查 ST-Link、供电、驱动和线缆</td></tr>
+<tr><td>文档结构混乱</td><td>报告 HTML 混入 references</td><td>报告 HTML 与 Markdown 同级，references 只放参考资料</td></tr>
+</tbody></table>
+<p>这些问题虽然不都属于算法本身，但对期末演示很关键。嵌入式项目经常不是代码写完就能展示，接口、供电、串口占用和文档证据都会影响最终效果。</p>
+<h2 id="7-本阶段产出">7. 本阶段产出</h2>
+<p>本阶段完成了以下准备工作：</p>
+<ul>
+<li>明确了 <code>qrs-hw</code> 中两名成员的工作边界和连接方式。</li>
+<li>将我的 MILP、网页、协议和 STM32 控制副本按不覆盖原则整合到仓库中。</li>
+<li>验证了 PC 端求解脚本、网页服务、STM32 Makefile 和 OpenOCD 烧录链路。</li>
+<li>建立了 SWD/JTAG 与 USART 的区分，避免后续把烧录口误当作串口使用。</li>
+<li>按队友报告风格拆分后续文档，为算法、接口和演示调试报告打基础。</li>
+</ul>
+<h2 id="8-参考资料说明">8. 参考资料说明</h2>
+<p>本目录 <code>references/</code> 保存与本阶段有关的工程和工具资料，包括战舰 V3 用户手册、STM32F1 开发指南、OpenOCD 烧录说明、当前 Makefile 和 VS Code 任务配置。它们用于说明本阶段的环境来源与烧录配置依据，报告 HTML 与 Markdown 保持在本目录同级位置。</p>
+<div class="refs"><h2>参考资料</h2><ul><li><a href="references/atk-warship-stm32f103-user-manual.pdf">atk-warship-stm32f103-user-manual.pdf</a></li><li><a href="references/openocd-flash-programming.html">openocd-flash-programming.html</a></li><li><a href="references/project-stm32-Makefile">project-stm32-Makefile</a></li><li><a href="references/project-vscode-tasks.json">project-vscode-tasks.json</a></li><li><a href="references/stm32f1-guide-lib-v31.pdf">stm32f1-guide-lib-v31.pdf</a></li></ul></div>
+<p class="footer">本 HTML 由同级 Markdown 报告转换生成，正文与参考资料分离，便于课程检查和离线阅读。</p>
+</main>
+</body>
+</html>

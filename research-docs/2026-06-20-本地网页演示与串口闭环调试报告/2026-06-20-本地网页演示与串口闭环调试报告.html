@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>本地网页演示与串口闭环调试报告</title>
+<style>
+:root { color-scheme: light; --main:#0f4c5c; --accent:#d17a22; --text:#1f2933; --muted:#5b6773; --line:#d7dee6; --bg:#f6f8fa; --soft:#fbfcfd; --note:#fff7ed; }
+* { box-sizing:border-box; }
+body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans CJK SC","Microsoft YaHei",Arial,sans-serif; color:var(--text); background:white; line-height:1.72; }
+main { max-width:980px; margin:0 auto; padding:42px 28px 64px; }
+h1 { color:var(--main); border-bottom:4px solid var(--main); padding-bottom:14px; font-size:2rem; line-height:1.25; margin:0 0 10px; }
+h2 { color:var(--main); border-left:6px solid var(--accent); padding-left:12px; margin-top:34px; }
+h3 { color:#244653; margin-top:26px; }
+p { margin:0.75em 0; }
+.meta { color:var(--muted); margin:0 0 20px; }
+.summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:18px 0 24px; }
+.card { border:1px solid var(--line); background:#f8fbff; border-radius:10px; padding:13px 15px; }
+.card strong { color:var(--main); display:block; margin-bottom:3px; }
+.flow { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 22px; }
+.flow span { background:#ecfeff; border:1px solid #a5f3fc; border-radius:999px; padding:6px 10px; font-size:0.95rem; }
+.toc { background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:15px 18px; margin:18px 0 28px; }
+.toc h2 { border:0; padding:0; margin:0 0 8px; font-size:1.1rem; }
+.toc ol { margin:0; columns:2; }
+table { width:100%; border-collapse:collapse; margin:16px 0 22px; font-size:0.96rem; }
+th, td { border:1px solid var(--line); padding:8px 10px; vertical-align:top; }
+th { background:#eaf3f6; color:#123d4a; font-weight:700; }
+tr:nth-child(even) td { background:var(--soft); }
+code { background:#eef2f5; padding:0.12em 0.35em; border-radius:4px; font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace; font-size:0.92em; }
+pre { background:#111827; color:#e5e7eb; padding:14px 16px; border-radius:8px; overflow:auto; line-height:1.55; }
+pre code { background:transparent; padding:0; color:inherit; }
+ul, ol { padding-left:1.45em; }
+a { color:#0b6b88; text-decoration:none; }
+a:hover { text-decoration:underline; }
+blockquote { margin:16px 0; padding:10px 16px; border-left:4px solid #8aa4c2; background:#f8fbff; color:#263238; }
+.refs { background:var(--note); border:1px solid #fed7aa; border-radius:10px; padding:14px 16px; margin-top:34px; }
+.refs h2 { margin-top:0; border:0; padding:0; color:#9a3412; }
+.footer { margin-top:34px; color:var(--muted); font-size:0.92rem; border-top:1px solid var(--line); padding-top:12px; }
+@media print { main { max-width:none; padding:20px; } a { color:inherit; } pre { white-space:pre-wrap; } .toc ol{columns:1;} }
+</style>
+</head>
+<body>
+<main>
+<h1>本地网页演示与串口闭环调试报告</h1>
+<p class="meta">日期：2026-06-20 ｜ QRS 智能网关 / STM32 本地 MILP 可视化部分</p>
+<div class="summary"><div class="card"><strong>演示闭环</strong>网页求解、串口转发、STM32 LCD 反馈</div><div class="card"><strong>调试记录</strong>编译、烧录、串口占用、NO REPLY 分析</div><div class="card"><strong>证据</strong>截图、ACK 日志和 LCD 状态共同验证</div></div>
+<div class="flow"><span>ESP32 采集</span><span>RS485 汇总</span><span>PC MILP 求解</span><span>USART1 返回</span><span>LCD / ACK 验证</span></div>
+<div class="toc"><h2>目录</h2><ol><li><a href="#1-报告范围">1. 报告范围</a></li><li><a href="#2-启动本地控制台">2. 启动本地控制台</a></li><li><a href="#3-自动串口转发">3. 自动串口转发</a></li><li><a href="#4-STM32-端观察点">4. STM32 端观察点</a></li><li><a href="#5-推荐演示流程">5. 推荐演示流程</a></li><li><a href="#6-调试问题-1-编译警告变错误">6. 调试问题 1：编译警告变错误</a></li><li><a href="#7-调试问题-2-OpenOCD-烧录失败">7. 调试问题 2：OpenOCD 烧录失败</a></li><li><a href="#8-调试问题-3-XCOM-发送无响应">8. 调试问题 3：XCOM 发送无响应</a></li><li><a href="#9-调试问题-4-COM3-拒绝访问">9. 调试问题 4：COM3 拒绝访问</a></li><li><a href="#10-调试问题-5-网页显示-NO-REPLY">10. 调试问题 5：网页显示 NO REPLY</a></li><li><a href="#11-调试问题-6-LCD-显示-ON-但物理执行器无动作">11. 调试问题 6：LCD 显示 ON 但物理执行器无动作</a></li><li><a href="#12-截图与证据建议">12. 截图与证据建议</a></li><li><a href="#13-最终状态">13. 最终状态</a></li><li><a href="#14-参考资料说明">14. 参考资料说明</a></li></ol></div>
+
+<p>日期：2026-06-20</p>
+<h2 id="1-报告范围">1. 报告范围</h2>
+<p>本报告记录最终演示阶段的网页启动、串口自动转发、STM32 LCD 反馈和若干实际调试问题。与前几份报告相比，本报告更偏“现场复现手册”：老师或同学拿到仓库后，可以按这里的步骤启动网页、生成控制帧、观察 STM32 是否收到，并知道常见报错应该从哪里查起。</p>
+<p>演示目标不是只打开一个静态网页，而是形成如下闭环：</p>
+<pre><code>网页修改输入
+  -&gt; Python 后端调用 MILP 求解器
+  -&gt; 生成 @C 控制帧
+  -&gt; 串口发送到 STM32 USART1
+  -&gt; STM32 返回 ACK 并刷新 LCD</code></pre>
+<p>如果 ESP32/RS485 节点也同时在线，则可以把真实 <code>@D</code> 数据引入网页状态，使演示更完整。</p>
+<h2 id="2-启动本地控制台">2. 启动本地控制台</h2>
+<p>进入 PC 后端目录：</p>
+<pre><code>cd .\code\pc_milp_solver
+python .\gateway_server.py</code></pre>
+<p>浏览器打开：</p>
+<pre><code>http://127.0.0.1:8765</code></pre>
+<p>页面会显示智能网关控制台，包含传感器输入、求解结果、控制策略、功率和返回控制帧。演示时可以调整目标温度、电价、功率上限、光照、温度、湿度和 PIR 状态，然后点击“求解并生成控制帧”。</p>
+<table><thead><tr>
+<th>页面区域</th>
+<th>演示作用</th>
+</tr></thead><tbody>
+<tr><td>传感器输入</td><td>说明数据来自 <code>@D</code> 帧或手动模拟</td></tr>
+<tr><td>运行参数</td><td>调整电价、功率上限、目标温度</td></tr>
+<tr><td>求解结果</td><td>展示目标函数、总功率、控制变量</td></tr>
+<tr><td>控制帧</td><td>展示发送给 STM32 的 <code>@C</code> 文本</td></tr>
+<tr><td>串口状态</td><td>启用自动转发后显示发送和 ACK 情况</td></tr>
+</tbody></table>
+<h2 id="3-自动串口转发">3. 自动串口转发</h2>
+<p>如果已经确认 COM 口对应 STM32 USART1，可以启动自动转发：</p>
+<pre><code>python .\gateway_server.py --serial-port COM3</code></pre>
+<p>此时后端会独占 COM3。网页每次求解生成新的 <code>@C</code> 帧后，Python 会把帧写入串口，并尝试读取 STM32 返回的 ACK。终端中应看到类似日志：</p>
+<pre><code>Serial port configured: COM3 at 115200 baud
+  [serial] Sent to COM3: @C,LED=1,BUZZER=0,FAN=1,AC=1*00
+  [serial] STM32 replied: ACK @C UPD=1</code></pre>
+<p>如果没有启用 <code>--serial-port</code>，网页仍然可以正常求解并显示 <code>@C</code> 帧，只是不会自动发给 STM32。这种模式适合先检查算法和前端，再用 XCOM 手动发送帧。</p>
+<h2 id="4-STM32-端观察点">4. STM32 端观察点</h2>
+<p>烧录 <code>stm32-warship-v3-milp-gateway</code> 后，LCD 应同时保留 RS485 节点状态和新增的 MILP 控制状态。控制帧链路是否成功，主要看以下几个量：</p>
+<table><thead><tr>
+<th>观察量</th>
+<th>正常表现</th>
+<th>含义</th>
+</tr></thead><tbody>
+<tr><td><code>MILP CTRL</code></td><td>LCD 下方出现控制区域</td><td>固件包含 MILP 显示逻辑</td></tr>
+<tr><td><code>UPD</code></td><td>每收到有效 <code>@C</code> 增加一次</td><td>控制帧解析成功次数</td></tr>
+<tr><td><code>U1 RX</code></td><td>发送串口数据后增加</td><td>USART1 确实收到字节</td></tr>
+<tr><td><code>OV</code></td><td>通常保持 0</td><td>接收缓冲未溢出</td></tr>
+<tr><td>串口 READY</td><td>复位后输出 <code>STM32 MILP UART1 READY</code></td><td>USART1 初始化成功</td></tr>
+<tr><td>串口 ACK</td><td>输出 <code>ACK @C UPD=n</code></td><td>STM32 完成帧解析</td></tr>
+</tbody></table>
+<p>这些观察点比单纯看 LED 或蜂鸣器更可靠。因为板卡版本、跳线和有效电平可能让物理执行器表现不明显，但 LCD 和 ACK 可以先证明控制链路已经通了。</p>
+<h2 id="5-推荐演示流程">5. 推荐演示流程</h2>
+<p>完整答辩演示可以按下面顺序进行：</p>
+<ol>
+<li>先展示 <code>qrs-hw</code> 根目录 README，说明系统闭环和分工。</li>
+<li>展示 ESP32/RS485/STM32 原始链路，LCD 上能看到节点数据或节点状态。</li>
+<li>切换到 <code>stm32-warship-v3-milp-gateway</code>，说明这是在原主站基础上增加控制帧入口的副本。</li>
+<li>启动 <code>python .\gateway_server.py</code>，打开 <code>http://127.0.0.1:8765</code>。</li>
+<li>修改网页输入，点击求解，观察目标函数、功率和 <code>@C</code> 帧变化。</li>
+<li>启动 <code>--serial-port COM3</code> 或用 XCOM 手动发送 <code>@C</code>。</li>
+<li>观察 STM32 串口 ACK 和 LCD <code>MILP CTRL</code> 区域更新。</li>
+<li>最后解释 <code>FAN</code>、<code>AC</code> 当前是代理变量，LED/BZ 是板载可观察执行端。</li>
+</ol>
+<h2 id="6-调试问题-1-编译警告变错误">6. 调试问题 1：编译警告变错误</h2>
+<p>曾经出现过如下构建错误：</p>
+<pre><code>main.c:187:13: error: &#x27;lcd_is_nt35510&#x27; defined but not used [-Werror=unused-variable]
+cc1.exe: all warnings being treated as errors
+make: *** [Makefile:24: build/main.o] Error 1</code></pre>
+<p>原因是 Makefile 中启用了 <code>-Werror</code>，未使用变量会从 warning 变成 error。这个问题不是 LCD 驱动本身坏了，而是新增代码时留下了未参与逻辑的变量。解决思路是回到可编译基线，再按实际需要修改：如果变量不需要就删除；如果需要区分 LCD 型号，就必须让它参与显示初始化或分支逻辑。</p>
+<p>这次问题提醒我，嵌入式工程里“能不能编译通过”经常受编译选项影响。为了避免把无关改动带入工程，后续只在 <code>stm32-warship-v3-milp-gateway/</code> 副本里修改，不碰队友原始工程。</p>
+<h2 id="7-调试问题-2-OpenOCD-烧录失败">7. 调试问题 2：OpenOCD 烧录失败</h2>
+<p>执行 <code>make flash</code> 时曾出现：</p>
+<pre><code>Open On-Chip Debugger 0.12.0
+Error: open failed
+** OpenOCD init failed **
+make: *** [Makefile:33: flash] Error 1</code></pre>
+<p>这个错误发生在 OpenOCD 打开调试器阶段，说明问题更可能在 ST-Link、USB 线、驱动、供电或板卡连接，而不是 <code>warship_v3_milp_gateway.elf</code> 本身。重新检查连接后，烧录成功，LCD 上出现新增的 <code>MILP CTRL</code> 内容。</p>
+<h2 id="8-调试问题-3-XCOM-发送无响应">8. 调试问题 3：XCOM 发送无响应</h2>
+<p>一开始我已经在 XCOM 中发送控制帧，但 STM32 没有任何响应。当时 USB 线接在 SWD/JTAG 口，这只能用于下载调试，不能当作 USART1 普通串口。后来改接正确的 USB 转串口通道，并设置 115200 8N1 后，复位能看到：</p>
+<pre><code>STM32 MILP UART1 READY</code></pre>
+<p>发送：</p>
+<pre><code>@C,LED=1,BUZZER=0,FAN=1,AC=1*00</code></pre>
+<p>可以收到：</p>
+<pre><code>ACK @C UPD=1</code></pre>
+<p>同时 LCD 的 <code>UPD</code>、LED、BZ、FAN、AC 状态会更新。</p>
+<h2 id="9-调试问题-4-COM3-拒绝访问">9. 调试问题 4：COM3 拒绝访问</h2>
+<p>运行：</p>
+<pre><code>python .\gateway_server.py --serial-port COM3</code></pre>
+<p>曾出现：</p>
+<pre><code>[serial] Failed to send to COM3: could not open port &#x27;COM3&#x27;: PermissionError(13, &#x27;拒绝访问。&#x27;, None, 5)</code></pre>
+<p>Windows 下串口通常是独占资源。如果 XCOM 已经打开 COM3，Python 后端就不能再打开同一个端口。解决方法是关闭 XCOM，由 Python 后端独占串口；或者关闭 Python 后端，再用 XCOM 手动发送，两者不要同时占用同一个 COM 口。</p>
+<h2 id="10-调试问题-5-网页显示-NO-REPLY">10. 调试问题 5：网页显示 NO REPLY</h2>
+<p>网页或 LCD 上看到 <code>NO REPLY</code> 时，不能立刻判断 MILP 控制失败。<code>NO REPLY</code> 主要表示 STM32 在 RS485 轮询 ESP32 节点时没有收到 <code>@D</code> 回包，可能与节点供电、A/B 接线、RS485 方向控制或节点程序有关。</p>
+<p>判断 PC 到 STM32 的 <code>@C</code> 控制链路，应看下面三个证据：</p>
+<ol>
+<li>Python 终端是否显示 <code>Sent to COM3</code>。</li>
+<li>STM32 是否返回 <code>ACK @C UPD=n</code>。</li>
+<li>LCD 的 <code>MILP CTRL</code> 中 <code>UPD</code> 是否增加。</li>
+</ol>
+<p>如果这三项正常，即使节点区域暂时显示 <code>NO REPLY</code>，也说明 MILP 控制帧链路是通的。</p>
+<h2 id="11-调试问题-6-LCD-显示-ON-但物理执行器无动作">11. 调试问题 6：LCD 显示 ON 但物理执行器无动作</h2>
+<p>曾出现 LCD 上 <code>LED</code> 和 <code>BZ</code> 显示为 ON，但肉眼没有看到 LED 亮、蜂鸣器也没有响的情况。这个现象说明算法策略已经到达 STM32，但物理执行还需要单独检查 GPIO 映射、有效电平和板卡跳线。</p>
+<p>当前固件按常见战舰 V3 接法使用 PB5 作为 LED0，PB8 作为蜂鸣器，其中 LED 可能是低电平有效。不同板卡版本或外设跳线不同，实际现象可能与代码假设不一致。为了演示稳妥，答辩时应同时展示 LCD 状态、串口 ACK 和必要时的 GPIO 说明，而不是只依赖蜂鸣器声音。</p>
+<h2 id="12-截图与证据建议">12. 截图与证据建议</h2>
+<p>建议在报告或答辩中按下面顺序放证据：</p>
+<table><thead><tr>
+<th>证据</th>
+<th>文件或现象</th>
+<th>证明内容</th>
+</tr></thead><tbody>
+<tr><td>编译截图</td><td><code>assets/screenshots/make和arm-none-eabi-gcc安装成功.png</code></td><td>工具链与 Makefile 可用</td></tr>
+<tr><td>前端截图</td><td><code>assets/screenshots/前端展示示例.png</code></td><td>网页控制台可运行</td></tr>
+<tr><td>串口截图</td><td><code>assets/screenshots/串口调试助手确认串口连接通讯正常.png</code></td><td>USART 控制通道可收发</td></tr>
+<tr><td>LCD 截图</td><td><code>assets/screenshots/接入MILP的显示示例.jpg</code></td><td>STM32 显示 MILP 区域</td></tr>
+<tr><td>控制后截图</td><td><code>assets/screenshots/发送控制帧后LCD显示.jpg</code></td><td><code>@C</code> 控制帧已影响 LCD 状态</td></tr>
+<tr><td>演示视频</td><td><code>assets/screenshots/接入MILP与前端基本演示.mp4</code></td><td>端到端演示过程</td></tr>
+</tbody></table>
+<h2 id="13-最终状态">13. 最终状态</h2>
+<p>截至 2026-06-20，本地网页可以正常求解并生成 <code>@C</code> 控制帧；STM32 MILP 网关可以烧录运行，LCD 能显示新增控制区域；USART1 通道可以通过串口助手或 Python 后端接收控制帧并返回 ACK。剩余需要现场确认的主要是实际板卡 LED/蜂鸣器的电平与接线，以及 ESP32/RS485 节点在线状态。</p>
+<h2 id="14-参考资料说明">14. 参考资料说明</h2>
+<p>本目录 <code>references/</code> 保存 OpenOCD、ESP-IDF UART、工程脚本和调试辅助资料。它们用于解释烧录、串口和节点监控过程。报告 HTML 与 Markdown 保持在同级目录，<code>references/</code> 不再放报告展示页。</p>
+<div class="refs"><h2>参考资料</h2><ul><li><a href="references/esp-idf-esp32c6-uart-driver.html">esp-idf-esp32c6-uart-driver.html</a></li><li><a href="references/openocd-flash-programming.html">openocd-flash-programming.html</a></li><li><a href="references/project-flash-monitor-sensors.sh">project-flash-monitor-sensors.sh</a></li><li><a href="references/project-idf.sh">project-idf.sh</a></li></ul></div>
+<p class="footer">本 HTML 由同级 Markdown 报告转换生成，正文与参考资料分离，便于课程检查和离线阅读。</p>
+</main>
+</body>
+</html>

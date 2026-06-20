@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STM32 与 QRS 硬件接口对齐报告</title>
+<style>
+:root { color-scheme: light; --main:#0f4c5c; --accent:#d17a22; --text:#1f2933; --muted:#5b6773; --line:#d7dee6; --bg:#f6f8fa; --soft:#fbfcfd; --note:#fff7ed; }
+* { box-sizing:border-box; }
+body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans CJK SC","Microsoft YaHei",Arial,sans-serif; color:var(--text); background:white; line-height:1.72; }
+main { max-width:980px; margin:0 auto; padding:42px 28px 64px; }
+h1 { color:var(--main); border-bottom:4px solid var(--main); padding-bottom:14px; font-size:2rem; line-height:1.25; margin:0 0 10px; }
+h2 { color:var(--main); border-left:6px solid var(--accent); padding-left:12px; margin-top:34px; }
+h3 { color:#244653; margin-top:26px; }
+p { margin:0.75em 0; }
+.meta { color:var(--muted); margin:0 0 20px; }
+.summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:18px 0 24px; }
+.card { border:1px solid var(--line); background:#f8fbff; border-radius:10px; padding:13px 15px; }
+.card strong { color:var(--main); display:block; margin-bottom:3px; }
+.flow { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 22px; }
+.flow span { background:#ecfeff; border:1px solid #a5f3fc; border-radius:999px; padding:6px 10px; font-size:0.95rem; }
+.toc { background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:15px 18px; margin:18px 0 28px; }
+.toc h2 { border:0; padding:0; margin:0 0 8px; font-size:1.1rem; }
+.toc ol { margin:0; columns:2; }
+table { width:100%; border-collapse:collapse; margin:16px 0 22px; font-size:0.96rem; }
+th, td { border:1px solid var(--line); padding:8px 10px; vertical-align:top; }
+th { background:#eaf3f6; color:#123d4a; font-weight:700; }
+tr:nth-child(even) td { background:var(--soft); }
+code { background:#eef2f5; padding:0.12em 0.35em; border-radius:4px; font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace; font-size:0.92em; }
+pre { background:#111827; color:#e5e7eb; padding:14px 16px; border-radius:8px; overflow:auto; line-height:1.55; }
+pre code { background:transparent; padding:0; color:inherit; }
+ul, ol { padding-left:1.45em; }
+a { color:#0b6b88; text-decoration:none; }
+a:hover { text-decoration:underline; }
+blockquote { margin:16px 0; padding:10px 16px; border-left:4px solid #8aa4c2; background:#f8fbff; color:#263238; }
+.refs { background:var(--note); border:1px solid #fed7aa; border-radius:10px; padding:14px 16px; margin-top:34px; }
+.refs h2 { margin-top:0; border:0; padding:0; color:#9a3412; }
+.footer { margin-top:34px; color:var(--muted); font-size:0.92rem; border-top:1px solid var(--line); padding-top:12px; }
+@media print { main { max-width:none; padding:20px; } a { color:inherit; } pre { white-space:pre-wrap; } .toc ol{columns:1;} }
+</style>
+</head>
+<body>
+<main>
+<h1>STM32 与 QRS 硬件接口对齐报告</h1>
+<p class="meta">日期：2026-06-19 ｜ QRS 智能网关 / STM32 本地 MILP 可视化部分</p>
+<div class="summary"><div class="card"><strong>接口对象</strong>@Q、@D、@C 与 ACK 四类文本帧</div><div class="card"><strong>硬件链路</strong>RS485 负责采集，USART1 负责控制返回</div><div class="card"><strong>验证信号</strong>LCD UPD、U1 RX、串口 ACK</div></div>
+<div class="flow"><span>ESP32 采集</span><span>RS485 汇总</span><span>PC MILP 求解</span><span>USART1 返回</span><span>LCD / ACK 验证</span></div>
+<div class="toc"><h2>目录</h2><ol><li><a href="#1-报告范围">1. 报告范围</a></li><li><a href="#2-总体数据方向">2. 总体数据方向</a></li><li><a href="#3-上行数据帧-D">3. 上行数据帧 <code>@D</code></a></li><li><a href="#4-轮询帧-Q">4. 轮询帧 <code>@Q</code></a></li><li><a href="#5-控制帧-C">5. 控制帧 <code>@C</code></a></li><li><a href="#6-STM32-固件改动点">6. STM32 固件改动点</a></li><li><a href="#7-物理连接与参数">7. 物理连接与参数</a></li><li><a href="#8-接口验证步骤">8. 接口验证步骤</a></li><li><a href="#9-典型误判与区分">9. 典型误判与区分</a></li><li><a href="#10-本阶段小结">10. 本阶段小结</a></li><li><a href="#11-参考资料说明">11. 参考资料说明</a></li></ol></div>
+
+<p>日期：2026-06-19</p>
+<h2 id="1-报告范围">1. 报告范围</h2>
+<p>本报告说明我负责的 MILP 控制链路如何与队友已有的 QRS 硬件采集链路对齐。这里的“接口对齐”不是只列协议格式，而是要确认三类帧在不同物理通道上的方向、波特率、解析位置和调试证据，避免把 RS485、USART1 和 SWD/JTAG 混在一起。</p>
+<p>系统中同时存在三条重要链路：ESP32-C6 节点通过 RS485 向 STM32 返回 <code>@D</code> 数据帧；STM32 通过 RS485 向 ESP32 发送 <code>@Q</code> 轮询帧；PC 通过 USART1 向 STM32 发送 <code>@C</code> 控制帧。三者都是文本帧，但物理通道不同。</p>
+<h2 id="2-总体数据方向">2. 总体数据方向</h2>
+<pre><code>ESP32-C6 传感器节点
+  &lt;- RS485 @Q 轮询帧
+  -&gt; RS485 @D 数据帧
+STM32 战舰 V3 主站
+  -&gt; LCD 显示节点状态
+  &lt;- USART1 @C 控制帧
+PC 本地 MILP 后端 / 网页控制台</code></pre>
+<table><thead><tr>
+<th>帧类型</th>
+<th>发送方</th>
+<th>接收方</th>
+<th>通道</th>
+<th>作用</th>
+</tr></thead><tbody>
+<tr><td><code>@Q</code></td><td>STM32</td><td>ESP32-C6 节点</td><td>USART3 + RS485</td><td>点名查询节点</td></tr>
+<tr><td><code>@D</code></td><td>ESP32-C6 节点</td><td>STM32 / PC</td><td>RS485 或网页粘贴</td><td>上传传感器状态</td></tr>
+<tr><td><code>@C</code></td><td>PC MILP 后端</td><td>STM32</td><td>USART1 / USB 串口</td><td>返回控制策略</td></tr>
+<tr><td><code>ACK</code></td><td>STM32</td><td>PC</td><td>USART1 / USB 串口</td><td>确认控制帧已解析</td></tr>
+</tbody></table>
+<p>这样划分后，某条链路失败时可以定向排查。例如 LCD 上节点区域 <code>NO REPLY</code> 多半是 <code>@Q/@D</code> RS485 链路问题；而 <code>MILP CTRL</code> 的 <code>UPD</code> 不增加，则应检查 <code>@C</code> 控制链路。</p>
+<h2 id="3-上行数据帧-D">3. 上行数据帧 <code>@D</code></h2>
+<p>队友硬件链路稳定后，ESP32-C6 节点会返回类似数据帧：</p>
+<pre><code>@D,ID=01,PIR=1,LUX=118.4,T=29.1,H=63.5,BH=ESP_OK,DHT=ESP_OK</code></pre>
+<table><thead><tr>
+<th>字段</th>
+<th>含义</th>
+<th>算法侧用途</th>
+</tr></thead><tbody>
+<tr><td><code>ID</code></td><td>节点编号</td><td>区分多节点数据来源</td></tr>
+<tr><td><code>PIR</code></td><td>人体红外检测结果</td><td>判断是否有人活动</td></tr>
+<tr><td><code>LUX</code></td><td>光照强度</td><td>影响 LED/照明收益</td></tr>
+<tr><td><code>T</code></td><td>温度</td><td>影响 FAN/AC 收益</td></tr>
+<tr><td><code>H</code></td><td>湿度</td><td>展示环境状态，后续可加入舒适度约束</td></tr>
+<tr><td><code>BH</code></td><td>BH1750 状态</td><td>判断光照数据是否可信</td></tr>
+<tr><td><code>DHT</code></td><td>AM2302/DHT22 状态</td><td>判断温湿度数据是否可信</td></tr>
+</tbody></table>
+<p>PC 端 <code>code/protocol/qrs_frames.py</code> 可以解析该帧，并转换为 MILP 求解器使用的字段。网页演示时既可以使用默认样例，也可以复制队友串口日志中的真实 <code>@D</code> 帧进行求解。</p>
+<h2 id="4-轮询帧-Q">4. 轮询帧 <code>@Q</code></h2>
+<p>STM32 主站通过 RS485 轮询节点：</p>
+<pre><code>@Q,ID=01*00
+@Q,ID=02*00</code></pre>
+<p>这部分沿用队友工程的主站逻辑，我的修改不改变轮询节奏和节点显示。保留 <code>@Q/@D</code> 链路的原因是它能证明系统数据来源于真实传感器，而不是网页里手填的静态样例。MILP 网关工程是在这个基础上增加 PC 控制侧通道。</p>
+<h2 id="5-控制帧-C">5. 控制帧 <code>@C</code></h2>
+<p>PC 端求解后生成控制帧：</p>
+<pre><code>@C,LED=1,BUZZER=0,FAN=1,AC=0*00</code></pre>
+<p>STM32 端收到后执行三件事：第一，解析 LED、BUZZER、FAN、AC 四个字段；第二，更新 LCD 中的 <code>MILP CTRL</code> 区域；第三，向串口返回 ACK，方便 Python 后端和串口助手判断链路是否通。</p>
+<pre><code>STM32 MILP UART1 READY
+ACK @C UPD=1</code></pre>
+<p>LCD 预期显示类似：</p>
+<pre><code>MILP CTRL  UPD:1
+LED:ON  BZ:OFF
+FAN:ON  AC:OFF
+U1 RX:37  OV:0</code></pre>
+<p>其中 <code>UPD</code> 是已成功解析的 <code>@C</code> 帧数量，<code>U1 RX</code> 是 USART1 收到的字节数，<code>OV</code> 是接收环形缓冲溢出次数。加入这些调试量后，即使物理 LED 或蜂鸣器因为板卡版本、电平或跳线没有动作，也能判断控制帧是否已经进入 STM32 程序。</p>
+<h2 id="6-STM32-固件改动点">6. STM32 固件改动点</h2>
+<p><code>stm32-warship-v3-milp-gateway/</code> 是从 RS485 主站工程派生出的副本。主要改动集中在 <code>main.c</code> 和 <code>startup.c</code>。</p>
+<table><thead><tr>
+<th>文件</th>
+<th>改动</th>
+<th>目的</th>
+</tr></thead><tbody>
+<tr><td><code>main.c</code></td><td>增加 USART1 寄存器定义、初始化和中断接收</td><td>接收 PC 端 <code>@C</code> 控制帧</td></tr>
+<tr><td><code>main.c</code></td><td>增加控制帧解析函数</td><td>将文本字段转成 LED/BZ/FAN/AC 状态</td></tr>
+<tr><td><code>main.c</code></td><td>增加 LCD <code>MILP CTRL</code> 区域</td><td>现场可视化控制结果</td></tr>
+<tr><td><code>main.c</code></td><td>增加 ACK 输出</td><td>便于 Python 后端确认发送结果</td></tr>
+<tr><td><code>startup.c</code></td><td>增加 <code>USART1_IRQHandler</code> 弱符号和向量表项</td><td>让 USART1 中断真正进入处理函数</td></tr>
+<tr><td><code>Makefile</code></td><td>保持已有裸机编译流程</td><td>确保工程可用 <code>make</code> 构建</td></tr>
+</tbody></table>
+<p>我在调试中发现，如果只写了 <code>USART1_IRQHandler</code> 函数但没有在启动文件向量表中放入正确入口，程序不会进入中断处理。这也是后来 <code>U1 RX</code> 不增加的关键原因之一。修正 <code>startup.c</code> 后，发送 <code>@C</code> 帧可以看到 RX 计数变化和 ACK 返回。</p>
+<h2 id="7-物理连接与参数">7. 物理连接与参数</h2>
+<table><thead><tr>
+<th>项目</th>
+<th>当前设置</th>
+<th>说明</th>
+</tr></thead><tbody>
+<tr><td>PC 到 STM32 控制口</td><td>USART1 / USB 转串口</td><td>用于 <code>@C</code> 和 ACK</td></tr>
+<tr><td>控制口波特率</td><td>115200 8N1</td><td>与 Python 后端和 XCOM 保持一致</td></tr>
+<tr><td>STM32 到 ESP32</td><td>USART3 + RS485 模块</td><td>沿用队友 RS485 链路</td></tr>
+<tr><td>烧录调试</td><td>ST-Link / SWD</td><td>只用于 <code>make flash</code>，不接收普通串口帧</td></tr>
+<tr><td>LED</td><td>PB5，低电平有效</td><td>不同板卡可能需按原理图校正</td></tr>
+<tr><td>蜂鸣器</td><td>PB8</td><td>与板载电路有效电平有关</td></tr>
+</tbody></table>
+<p>这里再次强调，SWD/JTAG 口不是普通串口。把 USB 线插在 ST-Link 口上可以烧录成功，但并不代表 XCOM 打开的 COM 口就是 USART1。</p>
+<h2 id="8-接口验证步骤">8. 接口验证步骤</h2>
+<p>推荐按以下顺序验证接口：</p>
+<ol>
+<li>烧录 <code>stm32-warship-v3-milp-gateway</code> 固件，确认 LCD 出现 <code>MILP CTRL</code> 区域。</li>
+<li>打开正确的 USB 串口，设置 115200 8N1，复位后观察 <code>STM32 MILP UART1 READY</code>。</li>
+<li>手动发送：</li>
+</ol>
+<pre><code>@C,LED=1,BUZZER=0,FAN=1,AC=1*00</code></pre>
+<ol>
+<li>查看串口是否返回：</li>
+</ol>
+<pre><code>ACK @C UPD=1</code></pre>
+<ol>
+<li>查看 LCD 上 LED、BZ、FAN、AC 和 <code>UPD</code> 是否同步变化。</li>
+<li>再启动 Python 后端 <code>--serial-port COM3</code>，由网页求解自动发送同样格式的控制帧。</li>
+</ol>
+<h2 id="9-典型误判与区分">9. 典型误判与区分</h2>
+<table><thead><tr>
+<th>现象</th>
+<th>容易误判</th>
+<th>实际排查方向</th>
+</tr></thead><tbody>
+<tr><td>LCD 节点区域显示 <code>NO REPLY</code></td><td>以为 PC 控制失败</td><td>优先检查 RS485 节点回包，和 <code>@C</code> 控制链路不同</td></tr>
+<tr><td>XCOM 发送无响应</td><td>以为解析代码错误</td><td>先看是否接到了 USART1，而不是 SWD/JTAG</td></tr>
+<tr><td>Python 报 COM3 拒绝访问</td><td>以为后端代码错误</td><td>Windows 串口被 XCOM 占用，关闭其他串口工具</td></tr>
+<tr><td><code>U1 RX</code> 增加但 <code>UPD</code> 不变</td><td>以为中断没进</td><td>帧头、换行或字段格式可能不符合 <code>@C</code> 解析要求</td></tr>
+<tr><td>LCD 显示 ON 但物理 LED 不亮</td><td>以为算法没输出</td><td>控制帧已到达，需检查 GPIO 映射和有效电平</td></tr>
+</tbody></table>
+<h2 id="10-本阶段小结">10. 本阶段小结</h2>
+<p>接口对齐后，系统中每条链路的职责更加清楚：RS485 链路负责采集数据，PC 链路负责求解和控制返回，LCD 与串口日志负责现场证据。这个阶段的价值在于把“网页上有一个算法”和“板子上有传感器数据”真正连起来，并且给出可排查的中间信号。</p>
+<h2 id="11-参考资料说明">11. 参考资料说明</h2>
+<p>本目录 <code>references/</code> 保存 RS485 模块资料、SP3485 数据手册、ESP32-C6 模组数据手册和 RS485 设计指南。它们用于支撑接口方向、电气连接和串口总线调试依据。报告 HTML 与 Markdown 保持同级，不放在 <code>references/</code> 内。</p>
+<div class="refs"><h2>参考资料</h2><ul><li><a href="references/esp32-c6-wroom-1_wroom-1u_datasheet_en.pdf">esp32-c6-wroom-1_wroom-1u_datasheet_en.pdf</a></li><li><a href="references/maxlinear-sp3485-datasheet.pdf">maxlinear-sp3485-datasheet.pdf</a></li><li><a href="references/ti-rs485-design-guide-slla272d.pdf">ti-rs485-design-guide-slla272d.pdf</a></li><li><a href="references/waveshare-rs485-board-user-manual.pdf">waveshare-rs485-board-user-manual.pdf</a></li></ul></div>
+<p class="footer">本 HTML 由同级 Markdown 报告转换生成，正文与参考资料分离，便于课程检查和离线阅读。</p>
+</main>
+</body>
+</html>

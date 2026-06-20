@@ -1,1 +1,12 @@
 .codex/
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+compile.log
+**/__pycache__/
+code/pc_milp_solver/__pycache__/
+stm32-warship-v3-milp-gateway/build/

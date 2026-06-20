@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-06-12T10:00:00+08:00",
+  "price_yuan_per_kwh": 1.2,
+  "power_limit_w": 1800,
+  "target_temperature_c": 26.0,
+  "nodes": [
+    {
+      "id": "01",
+      "pir": 1,
+      "lux": 118.4,
+      "temperature_c": 29.1,
+      "humidity_percent": 63.5,
+      "bh_status": "ESP_OK",
+      "dht_status": "ESP_OK"
+    },
+    {
+      "id": "02",
+      "pir": 0,
+      "lux": 302.8,
+      "temperature_c": 27.3,
+      "humidity_percent": 58.0,
+      "bh_status": "ESP_OK",
+      "dht_status": "ESP_OK"
+    }
+  ]
+}
